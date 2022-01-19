@@ -1,0 +1,34 @@
+cabal-version:      2.4
+name:               diamond
+version:            0.1.0.0
+
+synopsis:           Easily host programs on your server with sane limits
+
+-- license:         TODO
+
+author:             Udit Karode
+maintainer:         udit.karode@gmail.com
+
+executable diamond
+    main-is:          Cli.hs
+
+    ghc-options:      -main-is Cli
+                      -threaded
+                      -rtsopts
+                      -with-rtsopts=-N
+
+    mixins:           base hiding (Prelude)
+                    , relude (Relude as Prelude)
+                    , relude
+
+    other-modules:    Paths_diamond
+                    , Utils
+                    , Diamond
+
+    build-depends:    base ^>=4.15.0.0
+                    , pretty-terminal
+                    , optparse-applicative
+                    , relude
+
+    hs-source-dirs:   src
+    default-language: Haskell2010

@@ -1,0 +1,16 @@
+cradle:
+  cabal:
+    - path: "src/Cli.hs"
+      component: "diamond:exe:diamond"
+
+    - path: "src/Paths_diamond.hs"
+      component: "diamond:exe:diamond"
+
+    - path: "src/Utils.hs"
+      component: "diamond:exe:diamond"
+
+    - path: "src/Diamond.hs"
+      component: "diamond:exe:diamond"
+
+    - path: "src/Cli.hs"
+      component: "diamond:exe:diamond"
