@@ -1,6 +1,11 @@
 module Diamond where
 
-import Utils (CliArgs (CliArgs))
+import qualified Commands.Create as CreateCommand (create)
+import Utils (CliArgs (CliArgs), bail)
 
 diamond :: CliArgs -> IO ()
-diamond cliArgs = undefined
+diamond (CliArgs create remove) =
+  if
+      | create -> CreateCommand.create
+      | create && isJust remove -> bail "Cannot remove and create at the same time!"
+      | otherwise -> bail "Invalid or no command! Please read --help"

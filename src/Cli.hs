@@ -24,7 +24,7 @@ cliArgs =
         )
 
 main :: IO ()
-main = diamond =<< execParser opts
+main = diamond =<< customExecParser (prefs showHelpOnEmpty) opts
   where
     opts =
       info
