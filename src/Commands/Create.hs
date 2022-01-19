@@ -1,7 +1,8 @@
 module Commands.Create where
 
-import Utils (bail)
+import Utils (askQuestion, bail)
 
 create :: IO ()
 create = do
-  bail "unimplemented!"
+  txt <- askQuestion "What is the name of the application?"
+  bail $ txt <> " -- coming soon!"
