@@ -16,12 +16,18 @@ executable diamond
                         -threaded
                         -rtsopts
                         -with-rtsopts=-N
+                        -funfolding-use-threshold=16
+                        -fexcess-precision
+                        -optc-O3
+                        -optc-ffast-math
+                        -no-recomp
 
     mixins:             base hiding (Prelude)
                       , relude (Relude as Prelude)
                       , relude
 
     other-modules:      Paths_diamond
+                      , SystemUtils
                       , Diamond
                       , Logger
                       , Utils
@@ -30,8 +36,9 @@ executable diamond
                       , Commands.Create
 
     build-depends:      base ^>=4.15.0.0
-                      , pretty-terminal
                       , optparse-applicative
+                      , pretty-terminal
+                      , process
                       , relude
                       , text
 

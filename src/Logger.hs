@@ -8,8 +8,8 @@ import System.Console.Pretty
   )
 
 log :: Text -> Style -> Color -> Bool -> Text -> IO ()
-log marker c s n toLog = do
-  TIO.hPutStr stderr $ style Bold . color Red $ "[" <> marker <> "] "
+log marker s c n toLog = do
+  TIO.hPutStr stderr $ style s . color c $ "[" <> marker <> "] "
   (if n then TIO.hPutStrLn else TIO.hPutStr) stderr toLog
 
 -- error

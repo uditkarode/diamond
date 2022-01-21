@@ -6,6 +6,9 @@ cradle:
     - path: "src/Paths_diamond.hs"
       component: "diamond:exe:diamond"
 
+    - path: "src/SystemUtils.hs"
+      component: "diamond:exe:diamond"
+
     - path: "src/Diamond.hs"
       component: "diamond:exe:diamond"
 
