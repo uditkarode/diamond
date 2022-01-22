@@ -29,6 +29,7 @@ executable diamond
     other-modules:      Paths_diamond
                       , SystemUtils
                       , Diamond
+                      , Transaction
                       , Logger
                       , Utils
 
