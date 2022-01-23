@@ -41,7 +41,7 @@ run' :: String -> [String] -> TransactionT Text
 run' prog args = do
   res <- liftIO (try (readProcess prog args []) :: IO (Either IOError String))
   case res of
-    Left e -> liftIO (bail (toText $ displayException e)) >> pure ""
+    Left e -> fail $ displayException e
     Right s -> pure $ toText s
 
 run'' :: String -> [String] -> TransactionT ()
