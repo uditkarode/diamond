@@ -1,11 +1,13 @@
 module Diamond where
 
 import qualified Commands.Create as CreateCommand (create)
-import Utils (CliArgs (CliArgs), bail)
+import SystemUtils (bail)
+import Transaction (TransactionT (runTransaction))
+import Utils (CliArgs (CliArgs))
 
 diamond :: CliArgs -> IO ()
 diamond (CliArgs create remove) =
   if
-      | create -> evalStateT CreateCommand.create []
+      | create -> runTransaction CreateCommand.create [] >> pure ()
       | create && isJust remove -> bail "Cannot remove and create at the same time!"
       | otherwise -> bail "Invalid or no command! Please read --help"

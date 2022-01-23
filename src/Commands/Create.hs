@@ -1,13 +1,24 @@
 module Commands.Create where
 
 import Data.Text (replace, toLower)
-import Logger (logErrorLn, logInfoLn)
+import Logger (logErrorLn, logInfoLn, logSuccessLn)
 import System.Process (cwd, runCommand, shell)
-import SystemUtils (doesUserExist)
-import Transaction (Reversal)
-import Utils (askQuestion, bail, run, sanitise)
+import SystemUtils (bail, doesUserExist)
+import Transaction (Reversal (..), Transaction, TransactionT (TransactionT), makeTransaction)
+import Utils (askQuestion, run, run'', sanitise)
 
-create :: StateT [Reversal] IO ()
+-- create a user by the target application's sanitised name
+addUser :: Text -> Transaction
+addUser name = do
+  let strName = toString name
+  run "echoo" ["sudo", "userad", "-ms (check this)", strName]
+  makeTransaction "Creating user account" $
+    Reversal
+      { userMsg = "Reversing creation of user account",
+        reversal = run'' "echo" ["userremov", strName]
+      }
+
+create :: TransactionT ()
 create = do
   name <- liftIO $ sanitise <$> askQuestion "What is the name of the application?"
 
@@ -15,8 +26,7 @@ create = do
   liftIO $ logInfoLn "Checking for availability..."
   liftIO $ doesUserExist name >>= flip when (bail "A user by this name already exists!")
 
-  -- create a user by the target application's sanitised name
-  let action = "creating user account"
-  liftIO $ run ("sudo useradd -s /bin/zsh " <> toString name) []
+  txt <- addUser name
+  liftIO $ logSuccessLn txt
 
   liftIO $ bail $ name <> " -- coming soon!"

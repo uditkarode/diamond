@@ -1,8 +1,11 @@
 module Transaction where
 
+import Logger (logErrorLn, logInfoLn)
+import SystemUtils (bail)
+
 data Reversal = Reversal
   { userMsg :: Text,
-    reversal :: IO ()
+    reversal :: TransactionT ()
   }
 
 type Transaction = TransactionT Text
@@ -36,3 +39,13 @@ instance MonadIO TransactionT where
   liftIO action = TransactionT $ \r0 -> do
     v <- action
     pure (r0, v)
+
+instance MonadFail TransactionT where
+  fail reason = do
+    liftIO $ logErrorLn $ "Failed to <placeholder>: \n" <> toText reason
+    reversals <- getReversals
+    forM_ reversals $ \v -> do
+      liftIO $ logInfoLn (userMsg v)
+      reversal v
+    liftIO $ bail "Exiting due to errors"
+    TransactionT $ \_ -> fail reason

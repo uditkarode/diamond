@@ -34,7 +34,7 @@ logInfoLn = li True
 
 -- success
 ls :: Bool -> Text -> IO ()
-ls = log "✓" Bold Red
+ls = log "✓" Bold Green
 
 logSuccess :: Text -> IO ()
 logSuccess = ls False

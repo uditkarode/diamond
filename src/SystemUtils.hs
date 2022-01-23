@@ -1,7 +1,12 @@
 module SystemUtils where
 
 import Data.Text (splitOn)
-import Utils (bail)
+import Logger (logErrorLn)
+
+bail :: Text -> IO ()
+bail msg = do
+  logErrorLn msg
+  exitFailure
 
 doesUserExist :: Text -> IO Bool
 doesUserExist user = do
