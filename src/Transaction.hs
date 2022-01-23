@@ -16,7 +16,7 @@ makeTransaction :: Text -> Reversal -> Transaction
 makeTransaction t r = TransactionT $ \_ -> pure ([r], t)
 
 getReversals :: TransactionT [Reversal]
-getReversals = TransactionT $ \r0 -> pure ([], r0)
+getReversals = TransactionT $ \r0 -> pure (r0, r0)
 
 instance Functor TransactionT where
   fmap f (TransactionT g) = TransactionT $ \r0 -> do
@@ -44,7 +44,7 @@ instance MonadFail TransactionT where
   fail reason = do
     liftIO $ logErrorLn $ "Failed to <placeholder>: \n" <> toText reason
     reversals <- getReversals
-    forM_ reversals $ \v -> do
+    forM_ (trace (show (length reversals)) reversals) $ \v -> do
       liftIO $ logInfoLn (userMsg v)
       reversal v
     liftIO $ bail "Exiting due to errors"

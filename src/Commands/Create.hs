@@ -11,7 +11,7 @@ import Utils (askQuestion, run, run', run'', sanitise)
 addUser :: Text -> String -> Transaction
 addUser name prog = do
   let strName = toString name
-  run' prog ["sudo", "userad", "-ms (check this)", strName]
+  run' prog ["sudu", "userad", "-ms (check this)", strName]
   makeTransaction "Creating user account" $
     Reversal
       { userMsg = "Reversing creation of user account",
@@ -27,10 +27,12 @@ create = do
   liftIO $ doesUserExist name >>= flip when (bail "A user by this name already exists!")
 
   txt <- addUser name "echo"
-  liftIO $ putTextLn txt
+  liftIO $ logSuccessLn txt
+  txt <- addUser name "echo"
+  liftIO $ logSuccessLn txt
 
   reversals <- getReversals
-  liftIO $ putTextLn $ "there are " <> (show . length) reversals <> " reversals"
+  liftIO $ mapM_ (putTextLn . (<> " ") . show . length) [reversals, reversals2, reversals3, reversals4]
 
   txt <- addUser name "echoo"
   liftIO $ logSuccessLn txt
