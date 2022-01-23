@@ -1,28 +1,38 @@
 module Transaction where
 
 data Reversal = Reversal
-  { text :: Text,
-    command :: Text
+  { userMsg :: Text,
+    reversal :: IO ()
   }
-  deriving (Show, Eq)
 
 type Transaction = TransactionT Text
 
-newtype TransactionT a = TransactionT {runTransaction :: IO ([Reversal], a)}
+newtype TransactionT a = TransactionT {runTransaction :: [Reversal] -> IO ([Reversal], a)}
+
+makeTransaction :: Text -> Reversal -> Transaction
+makeTransaction t r = TransactionT $ \_ -> pure ([r], t)
+
+getReversals :: TransactionT [Reversal]
+getReversals = TransactionT $ \r0 -> pure ([], r0)
 
 instance Functor TransactionT where
-  fmap f (TransactionT val) = TransactionT $ do
-    tup <- val
-    pure $ second (const . f $ snd tup) tup
+  fmap f (TransactionT g) = TransactionT $ \r0 -> do
+    (r1, a) <- g r0
+    pure (r1, f a)
 
 instance Applicative TransactionT where
-  pure val = TransactionT $ pure ([], val)
-  TransactionT fn <*> TransactionT val = TransactionT $ do
-    fn <- fn
-    bimap (fst fn <>) (snd fn) <$> val
+  pure val = TransactionT $ \r0 -> pure (r0, val)
+  TransactionT fn <*> TransactionT val = TransactionT $ \r0 -> do
+    fn <- fn r0
+    bimap (fst fn <>) (snd fn) <$> val r0
 
 instance Monad TransactionT where
-  (TransactionT val) >>= fn = TransactionT $ do
-    val <- val
-    ret <- runTransaction $ fn (snd val)
+  (TransactionT val) >>= fn = TransactionT $ \r0 -> do
+    val <- val r0
+    ret <- runTransaction (fn (snd val)) r0
     pure (first (fst val <>) ret)
+
+instance MonadIO TransactionT where
+  liftIO action = TransactionT $ \r0 -> do
+    v <- action
+    pure (r0, v)
