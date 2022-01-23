@@ -8,12 +8,12 @@ data Reversal = Reversal
     reversal :: TransactionT ()
   }
 
-type Transaction = TransactionT Text
+type Step = TransactionT Text
 
 newtype TransactionT a = TransactionT {runTransaction :: [Reversal] -> IO ([Reversal], a)}
 
-makeTransaction :: Text -> Reversal -> Transaction
-makeTransaction t r = TransactionT $ \_ -> pure ([r], t)
+makeStep :: Text -> Reversal -> Step
+makeStep t r = TransactionT $ \_ -> pure ([r], t)
 
 getReversals :: TransactionT [Reversal]
 getReversals = TransactionT $ \r0 -> pure (r0, r0)
