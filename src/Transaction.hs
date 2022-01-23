@@ -18,16 +18,19 @@ makeStep t r = TransactionT $ \_ -> pure ([r], t)
 getReversals :: TransactionT [Reversal]
 getReversals = TransactionT $ \r0 -> pure (r0, r0)
 
+addReversal :: Reversal -> TransactionT ()
+addReversal r = TransactionT $ \r0 -> pure (r0 <> [r], ())
+
 instance Functor TransactionT where
   fmap f (TransactionT g) = TransactionT $ \r0 -> do
     (r1, a) <- g r0
-    pure (r1, f a)
+    pure (r0 <> r1, f a)
 
 instance Applicative TransactionT where
   pure val = TransactionT $ \r0 -> pure (r0, val)
   TransactionT fn <*> TransactionT val = TransactionT $ \r0 -> do
-    fn <- fn r0
-    bimap (fst fn <>) (snd fn) <$> val r0
+    (r1, a) <- fn r0
+    bimap (r0 <>) a <$> val r1
 
 instance Monad TransactionT where
   (TransactionT val) >>= fn = TransactionT $ \r0 -> do
@@ -44,7 +47,7 @@ instance MonadFail TransactionT where
   fail reason = do
     liftIO $ logErrorLn $ "Failed to <placeholder>: \n" <> toText reason
     reversals <- getReversals
-    forM_ (trace (show (length reversals)) reversals) $ \v -> do
+    forM_ reversals $ \v -> do
       liftIO $ logInfoLn (userMsg v)
       reversal v
     liftIO $ bail "Exiting due to errors"
