@@ -31,9 +31,9 @@ instance Applicative TransactionT where
 
 instance Monad TransactionT where
   (TransactionT val) >>= fn = TransactionT $ \r0 -> do
-    val <- val r0
-    ret <- runTransaction (fn (snd val)) r0
-    pure (first (fst val <>) ret)
+    (r1, a) <- val r0
+    ret <- runTransaction (fn a) r1
+    pure (first (r0 <>) ret)
 
 instance MonadIO TransactionT where
   liftIO action = TransactionT $ \r0 -> do

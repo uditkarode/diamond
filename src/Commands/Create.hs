@@ -4,14 +4,14 @@ import Data.Text (replace, toLower)
 import Logger (logErrorLn, logInfoLn, logSuccessLn)
 import System.Process (cwd, runCommand, shell)
 import SystemUtils (bail, doesUserExist)
-import Transaction (Reversal (..), Transaction, TransactionT (TransactionT), makeTransaction)
+import Transaction (Reversal (..), Transaction, TransactionT (TransactionT), getReversals, makeTransaction)
 import Utils (askQuestion, run, run', run'', sanitise)
 
 -- create a user by the target application's sanitised name
-addUser :: Text -> Transaction
-addUser name = do
+addUser :: Text -> String -> Transaction
+addUser name prog = do
   let strName = toString name
-  run' "echoo" ["sudo", "userad", "-ms (check this)", strName]
+  run' prog ["sudo", "userad", "-ms (check this)", strName]
   makeTransaction "Creating user account" $
     Reversal
       { userMsg = "Reversing creation of user account",
@@ -26,7 +26,13 @@ create = do
   liftIO $ logInfoLn "Checking for availability..."
   liftIO $ doesUserExist name >>= flip when (bail "A user by this name already exists!")
 
-  txt <- addUser name
+  txt <- addUser name "echo"
+  liftIO $ putTextLn txt
+
+  reversals <- getReversals
+  liftIO $ putTextLn $ "there are " <> (show . length) reversals <> " reversals"
+
+  txt <- addUser name "echoo"
   liftIO $ logSuccessLn txt
 
   liftIO $ bail $ name <> " -- coming soon!"
