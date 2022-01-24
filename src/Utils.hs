@@ -30,22 +30,25 @@ actionHeader' txt cur tot = do
 actionHeader :: Text -> Int -> Int -> IO ()
 actionHeader txt cur tot = putTextLn "" >> actionHeader' txt cur tot
 
-run :: String -> [String] -> TransactionT (Either Text Text)
-run prog args = do
-  res <- liftIO (try (readProcess prog args []) :: IO (Either IOError String))
+run' :: Text -> [Text] -> TransactionT (Either Text Text)
+run' prog args = do
+  res <- liftIO (try (readProcess (toString prog) (map toString args) []) :: IO (Either IOError String))
   case res of
     Left e -> pure $ Left (toText $ displayException e)
     Right s -> pure $ Right $ toText s
 
-run' :: String -> [String] -> TransactionT Text
-run' prog args = do
-  res <- liftIO (try (readProcess prog args []) :: IO (Either IOError String))
+runAs' :: Text -> Text -> [Text] -> TransactionT (Either Text Text)
+runAs' user prog args = run' "sudo" $ ["-su", user, prog] <> args
+
+run :: Text -> [Text] -> TransactionT Text
+run prog args = do
+  res <- liftIO (try (readProcess (toString prog) (map toString args) []) :: IO (Either IOError String))
   case res of
     Left e -> fail $ displayException e
     Right s -> pure $ toText s
 
-run'' :: String -> [String] -> TransactionT ()
-run'' prog args = run' prog args >> pure ()
+runAs :: Text -> Text -> [Text] -> TransactionT Text
+runAs user prog args = run "sudo" $ ["-su", user, prog] <> args
 
 askQuestion :: Text -> IO Text
 askQuestion question = do
