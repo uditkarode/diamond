@@ -47,8 +47,18 @@ run prog args = do
     Left e -> fail $ displayException e
     Right s -> pure $ toText s
 
+runR :: Text -> [Text] -> TransactionT Text
+runR prog args = do
+  res <- liftIO (try (readProcess (toString prog) (map toString args) []) :: IO (Either IOError String))
+  case res of
+    Left e -> liftIO (logErrorLn . toText $ displayException e) >> pure ""
+    Right s -> pure $ toText s
+
 runAs :: Text -> Text -> [Text] -> TransactionT Text
 runAs user prog args = run "sudo" $ ["-su", user, prog] <> args
+
+runAsR :: Text -> Text -> [Text] -> TransactionT Text
+runAsR user prog args = runR "sudo" $ ["-su", user, prog] <> args
 
 askQuestion :: Text -> IO Text
 askQuestion question = do

@@ -5,7 +5,7 @@ import Logger (logErrorLn, logInfoLn, logSuccessLn)
 import System.Process (cwd, runCommand, shell)
 import SystemUtils (bail, doesUserExist, userHomeDir)
 import Transaction (Reversal (..), Step, TransactionT (TransactionT), addReversal, getReversals, makeStep)
-import Utils (askQuestion, run, run', runAs, sanitise)
+import Utils (askQuestion, run, run', runAs, runAsR, runR, sanitise)
 
 -- create a user by the target application's sanitised name
 addUser :: Text -> Step
@@ -14,17 +14,17 @@ addUser name = do
   makeStep "Creating user account" $
     Reversal
       { userMsg = "Reversing creation of user account",
-        reversal = void $ run "userdel" ["--remove", name]
+        reversal = void $ runR "userdel" ["--remove", name]
       }
 
 cloneRepo :: Text -> Text -> Step
 cloneRepo name url = do
   homeDir <- liftIO . userHomeDir $ name
-  run "git" ["clone", url, homeDir <> "/src"]
+  runAs name "git" ["clone", url, homeDir <> "/src"]
   makeStep "Cloning repo in new user's home" $
     Reversal
       { userMsg = "Removing cloned source directory",
-        reversal = void $ runAs name "rm" ["-r", homeDir <> "/" <> name <> "/src"]
+        reversal = void $ runAsR name "rm" ["-r", homeDir <> "/src"]
       }
 
 create :: TransactionT ()
@@ -43,5 +43,7 @@ create = do
 
   st <- cloneRepo name url
   liftIO $ logSuccessLn st
+
+  run "hahahaha" []
 
   liftIO $ bail $ name <> " -- coming soon!"
