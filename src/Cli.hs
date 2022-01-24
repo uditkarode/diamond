@@ -33,7 +33,7 @@ removeMe args = do
   if v == "1" then diamond args else bail "You need to be in a testing environment until the program is ready."
 
 main :: IO ()
-main = diamond =<< customExecParser (prefs showHelpOnEmpty) opts
+main = removeMe =<< customExecParser (prefs showHelpOnEmpty) opts
   where
     opts =
       info
