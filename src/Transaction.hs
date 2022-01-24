@@ -5,44 +5,44 @@ import SystemUtils (bail)
 
 data Reversal = Reversal
   { userMsg :: Text,
-    reversal :: TransactionT ()
+    reversal :: Transaction ()
   }
 
-type Step = TransactionT Text
+type Step = Transaction Text
 
-newtype TransactionT a = TransactionT {runTransaction :: [Reversal] -> IO ([Reversal], a)}
+newtype Transaction a = Transaction {runTransaction :: [Reversal] -> IO ([Reversal], a)}
 
 makeStep :: Text -> Reversal -> Step
-makeStep t r = TransactionT $ \r0 -> pure ([r] <> r0, t)
+makeStep t r = Transaction $ \r0 -> pure ([r] <> r0, t)
 
-getReversals :: TransactionT [Reversal]
-getReversals = TransactionT $ \r0 -> pure (r0, r0)
+getReversals :: Transaction [Reversal]
+getReversals = Transaction $ \r0 -> pure (r0, r0)
 
-addReversal :: Reversal -> TransactionT ()
-addReversal r = TransactionT $ \r0 -> pure ([r] <> r0, ())
+addReversal :: Reversal -> Transaction ()
+addReversal r = Transaction $ \r0 -> pure ([r] <> r0, ())
 
-instance Functor TransactionT where
-  fmap f (TransactionT g) = TransactionT $ \r0 -> do
+instance Functor Transaction where
+  fmap f (Transaction g) = Transaction $ \r0 -> do
     (r1, a) <- g r0
     pure (r1, f a)
 
-instance Applicative TransactionT where
-  pure val = TransactionT $ \r0 -> pure (r0, val)
-  TransactionT fn <*> TransactionT val = TransactionT $ \r0 -> do
+instance Applicative Transaction where
+  pure val = Transaction $ \r0 -> pure (r0, val)
+  Transaction fn <*> Transaction val = Transaction $ \r0 -> do
     (r1, a) <- fn r0
     second a <$> val r1
 
-instance Monad TransactionT where
-  (TransactionT val) >>= fn = TransactionT $ \r0 -> do
+instance Monad Transaction where
+  (Transaction val) >>= fn = Transaction $ \r0 -> do
     (r1, a) <- val r0
     runTransaction (fn a) r1
 
-instance MonadIO TransactionT where
-  liftIO action = TransactionT $ \r0 -> do
+instance MonadIO Transaction where
+  liftIO action = Transaction $ \r0 -> do
     v <- action
     pure (r0, v)
 
-instance MonadFail TransactionT where
+instance MonadFail Transaction where
   fail reason = do
     liftIO $ logErrorMln "An operation in the previous step failed!" (toText reason)
     reversals <- getReversals
@@ -50,4 +50,4 @@ instance MonadFail TransactionT where
       liftIO $ logInfoLn (userMsg v)
       reversal v
     liftIO $ bail "Exiting due to errors"
-    TransactionT $ \_ -> fail reason
+    Transaction $ \_ -> fail reason

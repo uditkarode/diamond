@@ -4,7 +4,7 @@ import Data.Text (replace, toLower)
 import Logger (logErrorLn, logInfoLn, logSuccessLn)
 import System.Process (cwd, runCommand, shell)
 import SystemUtils (bail, doesUserExist, userHomeDir)
-import Transaction (Reversal (..), Step, TransactionT (TransactionT), addReversal, getReversals, makeStep)
+import Transaction (Reversal (..), Step, Transaction (Transaction), addReversal, getReversals, makeStep)
 import Utils (askQuestion, run, run', runAs, runAsR, runR, sanitise)
 
 -- create a user by the target application's sanitised name
@@ -27,7 +27,7 @@ cloneRepo name url = do
         reversal = void $ runAsR name "rm" ["-r", homeDir <> "/src"]
       }
 
-create :: TransactionT ()
+create :: Transaction ()
 create = do
   name <- liftIO $ sanitise <$> askQuestion "What is the name of the application?"
 
