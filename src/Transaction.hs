@@ -1,6 +1,6 @@
 module Transaction where
 
-import Logger (logErrorLn, logInfoLn)
+import Logger (logErrorLn, logErrorMln, logInfoLn)
 import SystemUtils (bail)
 
 data Reversal = Reversal
@@ -45,7 +45,7 @@ instance MonadIO TransactionT where
 
 instance MonadFail TransactionT where
   fail reason = do
-    liftIO $ logErrorLn $ "Failed to <placeholder>: \n" <> toText reason
+    liftIO $ logErrorMln "An operation in the previous step failed!" (toText reason)
     reversals <- getReversals
     forM_ reversals $ \v -> do
       liftIO $ logInfoLn (userMsg v)

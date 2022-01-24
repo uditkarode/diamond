@@ -20,7 +20,7 @@ executable diamond
                         -fexcess-precision
                         -optc-O3
                         -optc-ffast-math
-                        -no-recomp
+                        -fforce-recomp
 
     mixins:             base hiding (Prelude)
                       , relude (Relude as Prelude)

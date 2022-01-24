@@ -1,5 +1,6 @@
 module Logger where
 
+import Data.Text (replace)
 import qualified Data.Text.IO as TIO
 import System.Console.Pretty
   ( Color (Green, Red, Yellow),
@@ -21,6 +22,12 @@ logError = le False
 
 logErrorLn :: Text -> IO ()
 logErrorLn = le True
+
+logErrorMln :: Text -> Text -> IO ()
+logErrorMln heading toLog = do
+  TIO.hPutStr stderr $ style Bold . color Red $ "[x| "
+  TIO.hPutStr stderr $ heading <> "\n" <> (style Bold . color Red $ "  | ")
+  TIO.hPutStrLn stderr $ replace "\n" ("\n" <> (style Bold . color Red $ "  | ")) toLog
 
 -- info
 li :: Bool -> Text -> IO ()
