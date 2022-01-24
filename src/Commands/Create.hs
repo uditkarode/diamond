@@ -15,7 +15,7 @@ addUser name = do
   makeStep "Creating user account" $
     Reversal
       { userMsg = "Reversing creation of user account",
-        reversal = run'' "echo" ["userremov", strName]
+        reversal = run'' "userdel" ["--remove", strName]
       }
 
 create :: TransactionT ()
@@ -29,6 +29,6 @@ create = do
   st <- addUser name
   liftIO $ logSuccessLn st
 
-  -- run'' "ahahahah" []
+  run'' "ahahahah" []
 
   liftIO $ bail $ name <> " -- coming soon!"
