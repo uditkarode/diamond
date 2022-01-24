@@ -24,19 +24,19 @@ addReversal r = TransactionT $ \r0 -> pure (r0 <> [r], ())
 instance Functor TransactionT where
   fmap f (TransactionT g) = TransactionT $ \r0 -> do
     (r1, a) <- g r0
-    pure (r0 <> r1, f a)
+    pure (r1 <> r0, f a)
 
 instance Applicative TransactionT where
   pure val = TransactionT $ \r0 -> pure (r0, val)
   TransactionT fn <*> TransactionT val = TransactionT $ \r0 -> do
     (r1, a) <- fn r0
-    bimap (r0 <>) a <$> val r1
+    bimap (<> r0) a <$> val r1
 
 instance Monad TransactionT where
   (TransactionT val) >>= fn = TransactionT $ \r0 -> do
     (r1, a) <- val r0
     ret <- runTransaction (fn a) r1
-    pure (first (r0 <>) ret)
+    pure (first (<> r0) ret)
 
 instance MonadIO TransactionT where
   liftIO action = TransactionT $ \r0 -> do
