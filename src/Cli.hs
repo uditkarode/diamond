@@ -5,6 +5,8 @@ import Diamond (diamond)
 import Options.Applicative as O
 import Paths_diamond (version)
 import qualified System.Console.Pretty as SP
+import System.Environment (getEnv)
+import SystemUtils (bail)
 import Utils (CliArgs (CliArgs))
 
 cliArgs :: O.Parser CliArgs
@@ -22,6 +24,13 @@ cliArgs =
                 <> help "remove the specified diamond application"
             )
         )
+
+removeMe :: CliArgs -> IO ()
+removeMe args = do
+  -- so that I don't accidentally run this on my main machine
+  -- before it's even ready
+  v <- getEnv "IN_TESTING_ENV"
+  if v == "1" then diamond args else bail "You need to be in a testing environment until the program is ready."
 
 main :: IO ()
 main = diamond =<< customExecParser (prefs showHelpOnEmpty) opts
