@@ -11,7 +11,7 @@ import Utils (askQuestion, run, run', run'', sanitise)
 addUser :: Text -> Step
 addUser name = do
   let strName = toString name
-  run' "echo" ["sudo", "useradd", "-s", strName]
+  run' "useradd" ["--home-dir", "/var/apps/" <> strName, "--system", "--create-home", strName]
   makeStep "Creating user account" $
     Reversal
       { userMsg = "Reversing creation of user account",
@@ -26,9 +26,9 @@ create = do
   liftIO $ logInfoLn "Checking for availability..."
   liftIO $ doesUserExist name >>= flip when (bail "A user by this name already exists!")
 
-  name <- addUser name
-  liftIO $ logSuccessLn name
+  st <- addUser name
+  liftIO $ logSuccessLn st
 
-  run'' "ahahahah" []
+  -- run'' "ahahahah" []
 
   liftIO $ bail $ name <> " -- coming soon!"
