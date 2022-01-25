@@ -1,0 +1,34 @@
+[Unit]
+Description=diamond service for <diamond-name>
+After=multi-user.target
+
+[Service]
+# Base settings
+Type=simple
+Restart=always
+RestartSec=10
+
+# Execution parameters
+User=<diamond-name>
+Group=<diamond-name>
+WorkingDirectory=<diamond-home>
+ExecStart=<diamond-command>
+
+# Limit damage in case something goes awry
+MemoryLimit=<diamond-ram-limit> # something like 3G
+CPUQuota=<diamond-cpu-limit> # something like 400%
+
+# Security
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+PrivateDevices=true
+RestrictNamespaces=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

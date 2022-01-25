@@ -1,7 +1,13 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module SystemUtils where
 
+import Data.FileEmbed (embedFile)
 import Data.Text (splitOn)
 import Logger (logErrorLn)
+
+dummyService :: Text
+dummyService = decodeUtf8 $(embedFile "dummy.service")
 
 bail :: Text -> IO ()
 bail msg = do

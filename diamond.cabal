@@ -28,8 +28,8 @@ executable diamond
 
     other-modules:      Paths_diamond
                       , SystemUtils
-                      , Diamond
                       , Transaction
+                      , Diamond
                       , Logger
                       , Utils
 
@@ -39,6 +39,7 @@ executable diamond
     build-depends:      base ^>=4.15.0.0
                       , optparse-applicative
                       , pretty-terminal
+                      , file-embed
                       , process
                       , relude
                       , text

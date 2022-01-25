@@ -29,7 +29,7 @@ cloneRepo name url = do
 
 create :: Transaction ()
 create = do
-  name <- liftIO $ sanitise <$> askQuestion "What is the name of the application?"
+  name <- liftIO $ sanitise <$> askQuestion "Name of the service"
 
   -- create a user for the service
   liftIO $ logInfoLn "Checking for availability..."
@@ -39,10 +39,13 @@ create = do
   liftIO $ logSuccessLn st
 
   -- clone the source code
-  url <- liftIO $ sanitise <$> askQuestion "Link to the git repository of the application"
+  url <- liftIO $ sanitise <$> askQuestion "Link to the git repository of the service"
 
   st <- cloneRepo name url
   liftIO $ logSuccessLn st
+
+  -- ask the command to run the service
+  command <- liftIO $ sanitise <$> askQuestion "Command to run the service"
 
   run "hahahaha" []
 
