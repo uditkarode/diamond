@@ -19,16 +19,15 @@ data CliArgs = CliArgs
   }
   deriving (Show)
 
+foldl :: Foldable f => f a -> b -> (a -> b -> b) -> b
+foldl a d l = flipfoldl' l d a
+
+replacePlaceholders :: Text -> [(Text, Text)] -> Text
+replacePlaceholders txt vals = foldl vals txt $ \curr acc -> do
+  replace ("<diamond-" <> fst curr <> ">") (snd curr) acc
+
 sanitise :: Text -> Text
 sanitise = replace " " "-" . toLower
-
-actionHeader' :: Text -> Int -> Int -> IO ()
-actionHeader' txt cur tot = do
-  putText $ style Bold . color Blue $ "[" <> "" <> "/" <> "" <> "]"
-  putText $ style Bold . color Green $ txt
-
-actionHeader :: Text -> Int -> Int -> IO ()
-actionHeader txt cur tot = putTextLn "" >> actionHeader' txt cur tot
 
 run' :: Text -> [Text] -> Transaction (Either Text Text)
 run' prog args = do
