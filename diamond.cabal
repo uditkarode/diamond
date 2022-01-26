@@ -40,6 +40,7 @@ executable diamond
                       , optparse-applicative
                       , pretty-terminal
                       , file-embed
+                      , directory
                       , process
                       , relude
                       , text

@@ -2,6 +2,7 @@ module Commands.Create where
 
 import Data.Text (replace, toLower)
 import Logger (logErrorLn, logInfoLn, logSuccessLn)
+import System.Directory (createDirectory)
 import System.Process (cwd, runCommand, shell)
 import SystemUtils (bail, doesUserExist, dummyService, userHomeDir)
 import Transaction (Reversal (..), Step, Transaction (Transaction), addReversal, getReversals, makeStep)
@@ -11,9 +12,10 @@ import Utils (askQuestion, replacePlaceholders, run, run', runAs, runAsR, runR, 
 addUser :: Text -> Step
 addUser name = do
   run "useradd" ["--home-dir", "/var/apps/" <> name, "--system", "--create-home", name]
+  liftIO $ createDirectory $ "/var/apps/" <> toString name <> "/mountpoint"
   makeStep "Creating user account" $
     Reversal
-      { userMsg = "Reversing creation of user account",
+      { userMsg = "Removing daemon user account",
         reversal = void $ runR "userdel" ["--remove", name]
       }
 
@@ -43,7 +45,16 @@ createSystemdService name homeDir command ramLimit cpuLimit = do
   makeStep "Creating the systemd service" $
     Reversal
       { userMsg = "Removing the systemd service",
-        reversal = void $ run "rm" [toText serviceFilePath]
+        reversal = void $ runR "rm" [toText serviceFilePath]
+      }
+
+createDiskImage :: Text -> Text -> Text -> Step
+createDiskImage name homeDir size = do
+  run "fallocate" ["--length", size, homeDir <> "/" <> name <> ".img"]
+  makeStep "Creating the disk image" $
+    Reversal
+      { userMsg = "Removing the disk image",
+        reversal = void $ runR "rm" []
       }
 
 -- the root command function
@@ -61,9 +72,13 @@ create = do
 
   -- clone the source code
   url <- liftIO $ askQuestion "Link to the git repository of the service"
-
   st <- cloneRepo name url homeDir
   liftIO $ logSuccessLn st
+
+  -- ask questions about the disk image size
+  -- TODO free space check and regex validation of size
+  diSize <- liftIO $ askQuestion "What is the size of the disk image for this service?"
+  createDiskImage name homeDir diSize
 
   -- ask a few more general questions for the service setup
   command <- liftIO $ askQuestion "Command to run the service"

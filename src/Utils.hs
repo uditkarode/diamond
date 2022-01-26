@@ -9,7 +9,7 @@ import System.Console.Pretty
     Pretty (color, style),
     Style (Bold),
   )
-import System.Process (readProcess)
+import System.Process
 import SystemUtils (bail)
 import Transaction (Transaction (Transaction))
 
