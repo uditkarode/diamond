@@ -50,11 +50,21 @@ createSystemdService name homeDir command ramLimit cpuLimit = do
 
 createDiskImage :: Text -> Text -> Text -> Step
 createDiskImage name homeDir size = do
-  run "fallocate" ["--length", size, homeDir <> "/" <> name <> ".img"]
+  let path = homeDir <> "/" <> name <> ".img"
+  run "fallocate" ["--length", size, path]
   makeStep "Creating the disk image" $
     Reversal
       { userMsg = "Removing the disk image",
-        reversal = void $ runR "rm" []
+        reversal = void $ runR "rm" [path]
+      }
+
+mountDiskImage :: Text -> Text -> Step
+mountDiskImage name homeDir = do
+  run "mount" [homeDir <> "/" <> name <> ".img", homeDir <> "/mountpoint"]
+  makeStep "Mounting the disk image" $
+    Reversal
+      { userMsg = "Unmounting the disk image",
+        reversal = void $ runR "umount" [homeDir <> "/mountpoint"]
       }
 
 -- the root command function
@@ -70,15 +80,20 @@ create = do
   homeDir <- liftIO . userHomeDir $ name
   liftIO $ logSuccessLn st
 
+  -- ask questions about the disk image size
+  -- TODO free space check and regex validation of size
+  diSize <- liftIO $ askQuestion "What is the size of the disk image for this service?"
+
+  st <- createDiskImage name homeDir diSize
+  liftIO $ logSuccessLn st
+
+  st <- mountDiskImage name homeDir
+  liftIO $ logSuccessLn st
+
   -- clone the source code
   url <- liftIO $ askQuestion "Link to the git repository of the service"
   st <- cloneRepo name url homeDir
   liftIO $ logSuccessLn st
-
-  -- ask questions about the disk image size
-  -- TODO free space check and regex validation of size
-  diSize <- liftIO $ askQuestion "What is the size of the disk image for this service?"
-  createDiskImage name homeDir diSize
 
   -- ask a few more general questions for the service setup
   command <- liftIO $ askQuestion "Command to run the service"
