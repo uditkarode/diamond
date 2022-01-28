@@ -52,6 +52,7 @@ createDiskImage :: Text -> Text -> Text -> Step
 createDiskImage name homeDir size = do
   let path = homeDir <> "/" <> name <> ".img"
   run "fallocate" ["--length", size, path]
+  run "mkfs.ext4" [path]
   makeStep "Creating the disk image" $
     Reversal
       { userMsg = "Removing the disk image",
