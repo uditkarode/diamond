@@ -1,9 +1,8 @@
 module Diamond where
 
 import qualified Commands.Create as CreateCommand (create)
-import SystemUtils (bail)
+import SystemUtils (CliArgs (CliArgs), bail)
 import Transaction (Transaction (runTransaction))
-import Utils (CliArgs (CliArgs))
 
 diamond :: CliArgs -> IO ()
 diamond (CliArgs create remove) =

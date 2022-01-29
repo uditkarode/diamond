@@ -43,11 +43,13 @@ executable diamond
                       , directory
                       , process
                       , relude
+                      , aeson
                       , text
 
     hs-source-dirs:     src
 
     default-extensions: MultiWayIf
+                      , DeriveGeneric
                       , OverloadedStrings
 
     default-language:   Haskell2010

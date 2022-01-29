@@ -5,9 +5,9 @@ import Diamond (diamond)
 import Options.Applicative as O
 import Paths_diamond (version)
 import qualified System.Console.Pretty as SP
+import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist)
 import System.Environment (getEnv)
-import SystemUtils (bail)
-import Utils (CliArgs (CliArgs))
+import SystemUtils (CliArgs (CliArgs), Data (Data), bail, configRoot, dataPath, writeData)
 
 cliArgs :: O.Parser CliArgs
 cliArgs =
@@ -25,15 +25,21 @@ cliArgs =
             )
         )
 
-removeMe :: CliArgs -> IO ()
-removeMe args = do
+prepare :: CliArgs -> IO ()
+prepare args = do
   -- so that I don't accidentally run this on my main machine
   -- before it's even ready
   v <- getEnv "IN_TESTING_ENV"
+
+  createDirectoryIfMissing True =<< configRoot
+
+  fe <- doesFileExist =<< dataPath
+  unless fe $ writeData $ Data []
+
   if v == "1" then diamond args else bail "You need to be in a testing environment until the program is ready."
 
 main :: IO ()
-main = removeMe =<< customExecParser (prefs showHelpOnEmpty) opts
+main = prepare =<< customExecParser (prefs showHelpOnEmpty) opts
   where
     opts =
       info

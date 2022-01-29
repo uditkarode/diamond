@@ -9,15 +9,9 @@ import System.Console.Pretty
     Pretty (color, style),
     Style (Bold),
   )
-import System.Process
+import System.Process (readProcess)
 import SystemUtils (bail)
 import Transaction (Transaction (Transaction))
-
-data CliArgs = CliArgs
-  { create :: Bool,
-    remove :: Maybe String
-  }
-  deriving (Show)
 
 foldl :: Foldable f => f a -> b -> (a -> b -> b) -> b
 foldl a d l = flipfoldl' l d a

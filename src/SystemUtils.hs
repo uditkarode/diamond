@@ -2,12 +2,50 @@
 
 module SystemUtils where
 
+import Data.Aeson (FromJSON, encode)
+import Data.Aeson.Types (ToJSON (toJSON))
 import Data.FileEmbed (embedFile)
 import Data.Text (splitOn)
 import Logger (logErrorLn)
+import System.Directory (XdgDirectory (XdgConfig), getXdgDirectory)
+
+data CliArgs = CliArgs
+  { create :: Bool,
+    remove :: Maybe String
+  }
+  deriving (Show)
+
+data DataEntry = DataEntry
+  { name :: Text,
+    prefix :: Text,
+    diskImagePrefix :: Text
+  }
+  deriving (Generic, Show)
+
+newtype Data = Data [DataEntry] deriving (Generic, Show)
+
+instance FromJSON DataEntry
+
+instance ToJSON DataEntry
+
+instance FromJSON Data
+
+instance ToJSON Data
+
+configRoot :: IO FilePath
+configRoot = getXdgDirectory XdgConfig "diamond"
+
+configPath :: IO FilePath
+configPath = configRoot <&> (<> "/diamond.conf")
+
+dataPath :: IO FilePath
+dataPath = configRoot <&> (<> "/data.json")
 
 dummyService :: Text
 dummyService = decodeUtf8 $(embedFile "dummy.service")
+
+writeData :: Data -> IO ()
+writeData d = flip writeFileText (decodeUtf8 $ encode d) =<< dataPath
 
 bail :: Text -> IO ()
 bail msg = do
