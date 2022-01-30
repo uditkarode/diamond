@@ -1,7 +1,6 @@
 module Transaction where
 
 import Logger (logErrorLn, logErrorMln, logInfoLn)
-import SystemUtils (bail)
 
 data Reversal = Reversal
   { userMsg :: Text,
@@ -20,6 +19,11 @@ getReversals = Transaction $ \r0 -> pure (r0, r0)
 
 addReversal :: Reversal -> Transaction ()
 addReversal r = Transaction $ \r0 -> pure ([r] <> r0, ())
+
+bail :: Text -> IO ()
+bail msg = do
+  logErrorLn msg
+  exitFailure
 
 instance Functor Transaction where
   fmap f (Transaction g) = Transaction $ \r0 -> do

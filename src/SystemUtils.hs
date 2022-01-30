@@ -2,12 +2,15 @@
 
 module SystemUtils where
 
-import Data.Aeson (FromJSON, encode)
+import Control.Exception (try)
+import Data.Aeson (FromJSON, decode, encode)
 import Data.Aeson.Types (ToJSON (toJSON))
 import Data.FileEmbed (embedFile)
 import Data.Text (splitOn)
+import GHC.IO.Exception (IOError, IOException (IOError))
 import Logger (logErrorLn)
 import System.Directory (XdgDirectory (XdgConfig), getXdgDirectory)
+import Transaction (Transaction (Transaction))
 
 data CliArgs = CliArgs
   { create :: Bool,
@@ -46,6 +49,24 @@ dummyService = decodeUtf8 $(embedFile "dummy.service")
 
 writeData :: Data -> IO ()
 writeData d = flip writeFileText (decodeUtf8 $ encode d) =<< dataPath
+
+writeData' :: Data -> Transaction ()
+writeData' d = do
+  v <- liftIO $ try (writeData d) :: Transaction (Either SomeException ())
+  case v of
+    Left e -> fail $ "Unable to read the data file because " <> displayException e
+    Right v -> pure v
+
+readData :: Transaction Data
+readData = do
+  txt <- liftIO $ try (readFileLBS =<< dataPath) :: Transaction (Either IOError LByteString)
+  case txt of
+    Left e -> fail $ "Unable to read the data file because " <> displayException e
+    Right txt -> do
+      let v = decode txt :: Maybe Data
+      case v of
+        Nothing -> fail "Could not decode the data file! Make sure the syntax is correct"
+        Just v' -> pure v'
 
 bail :: Text -> IO ()
 bail msg = do
