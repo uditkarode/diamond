@@ -21,9 +21,7 @@ addReversal :: Reversal -> Transaction ()
 addReversal r = Transaction $ \r0 -> pure ([r] <> r0, ())
 
 bail :: Text -> IO ()
-bail msg = do
-  logErrorLn msg
-  exitFailure
+bail msg = logErrorLn msg >> exitFailure
 
 instance Functor Transaction where
   fmap f (Transaction g) = Transaction $ \r0 -> do

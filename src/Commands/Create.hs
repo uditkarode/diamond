@@ -4,7 +4,17 @@ import Data.Text (replace, toLower)
 import Logger (logErrorLn, logInfoLn, logSuccessLn)
 import System.Directory (createDirectory)
 import System.Process (cwd, runCommand, shell)
-import SystemUtils (bail, doesUserExist, dummyService, userHomeDir)
+import SystemUtils
+  ( Data (Data, entries),
+    DataEntry (DataEntry, diskImagePrefix, name, prefix),
+    bail,
+    dataPath,
+    doesUserExist,
+    dummyService,
+    readData,
+    userHomeDir,
+    writeData',
+  )
 import Transaction (Reversal (..), Step, Transaction (Transaction), addReversal, getReversals, makeStep)
 import Utils (askQuestion, replacePlaceholders, run, run', runAs, runAsR, runR, sanitise)
 
@@ -68,6 +78,23 @@ mountDiskImage name homeDir = do
         reversal = void $ runR "umount" [homeDir <> "/mountpoint"]
       }
 
+addToData :: Text -> Text -> Text -> Step
+addToData name prefix diPrefix = do
+  let v =
+        DataEntry
+          { name = name,
+            prefix = prefix,
+            diskImagePrefix = diPrefix
+          }
+  steps <- entries <$> readData
+  writeData' $ Data $ steps <> [v]
+  p <- liftIO $ toText <$> dataPath
+  makeStep ("Adding entry to '" <> p <> "'") $
+    Reversal
+      { userMsg = "Removing entry from '" <> p <> "'",
+        reversal = writeData' $ Data steps
+      }
+
 -- the root command function
 create :: Transaction ()
 create = do
@@ -102,6 +129,10 @@ create = do
   cpuLimit <- liftIO $ askQuestion "What CPU limit do you want to assign? (e.g.) 200%"
 
   st <- createSystemdService name homeDir command ramLimit cpuLimit
+  liftIO $ logSuccessLn st
+
+  -- TODO allow user to place disk image or src in directory of choice
+  st <- addToData name homeDir homeDir
   liftIO $ logSuccessLn st
 
   liftIO $ bail $ name <> " -- coming soon!"

@@ -25,7 +25,7 @@ data DataEntry = DataEntry
   }
   deriving (Generic, Show)
 
-newtype Data = Data [DataEntry] deriving (Generic, Show)
+newtype Data = Data {entries :: [DataEntry]} deriving (Generic, Show)
 
 instance FromJSON DataEntry
 
