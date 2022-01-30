@@ -39,6 +39,7 @@ executable diamond
     build-depends:      base ^>=4.15.0.0
                       , optparse-applicative
                       , pretty-terminal
+                      , aeson-pretty
                       , file-embed
                       , directory
                       , process

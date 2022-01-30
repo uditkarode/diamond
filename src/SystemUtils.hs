@@ -4,6 +4,7 @@ module SystemUtils where
 
 import Control.Exception (try)
 import Data.Aeson (FromJSON, decode, encode)
+import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.Aeson.Types (ToJSON (toJSON))
 import Data.FileEmbed (embedFile)
 import Data.Text (splitOn)
@@ -48,7 +49,7 @@ dummyService :: Text
 dummyService = decodeUtf8 $(embedFile "dummy.service")
 
 writeData :: Data -> IO ()
-writeData d = flip writeFileText (decodeUtf8 $ encode d) =<< dataPath
+writeData d = flip writeFileText (decodeUtf8 $ encodePretty d) =<< dataPath
 
 writeData' :: Data -> Transaction ()
 writeData' d = do
