@@ -32,11 +32,11 @@ addUser name = do
 -- clone the repo in the new user's home
 cloneRepo :: Text -> Text -> Text -> Step
 cloneRepo name url homeDir = do
-  runAs name "git" ["clone", url, homeDir <> "/src"]
+  runAs name "git" ["clone", url, homeDir <> "/mountpoint/src"]
   makeStep "Cloning repo in new user's home" $
     Reversal
       { userMsg = "Removing cloned source directory",
-        reversal = void $ runAsR name "rm" ["-r", homeDir <> "/src"]
+        reversal = void $ runAsR name "rm" ["-r", homeDir <> "/mountpoint/src"]
       }
 
 createSystemdService :: Text -> Text -> Text -> Text -> Text -> Step
@@ -45,7 +45,7 @@ createSystemdService name homeDir command ramLimit cpuLimit = do
         replacePlaceholders
           dummyService
           [ ("name", name),
-            ("home", homeDir),
+            ("home", homeDir <> "/mountpoint/src"),
             ("command", command),
             ("ram-limit", ramLimit),
             ("cpu-limit", cpuLimit)
