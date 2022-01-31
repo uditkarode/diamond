@@ -46,6 +46,7 @@ executable diamond
                       , relude
                       , aeson
                       , text
+                      , unix
 
     hs-source-dirs:     src
 

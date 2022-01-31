@@ -7,6 +7,7 @@ import Paths_diamond (version)
 import qualified System.Console.Pretty as SP
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist)
 import System.Environment (getEnv)
+import System.Posix.User (getEffectiveUserID)
 import SystemUtils (CliArgs (CliArgs), Data (Data), bail, configRoot, dataPath, writeData)
 
 cliArgs :: O.Parser CliArgs
@@ -30,6 +31,9 @@ prepare args = do
   -- so that I don't accidentally run this on my main machine
   -- before it's even ready
   v <- getEnv "IN_TESTING_ENV"
+
+  euid <- getEffectiveUserID
+  when (euid /= 0) $ bail "Please run this program with sudo!"
 
   createDirectoryIfMissing True =<< configRoot
 
