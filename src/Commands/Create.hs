@@ -72,6 +72,7 @@ createDiskImage name homeDir size = do
 mountDiskImage :: Text -> Text -> Step
 mountDiskImage name homeDir = do
   run "mount" [homeDir <> "/" <> name <> ".img", homeDir <> "/mountpoint"]
+  run "chown" [name, homeDir <> "/mountpoint"]
   makeStep "Mounting the disk image" $
     Reversal
       { userMsg = "Unmounting the disk image",
