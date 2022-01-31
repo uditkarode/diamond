@@ -18,11 +18,12 @@ RUN usermod -aG wheel udit
 # also export the test envvar for the user
 RUN echo 'export IN_TESTING_ENV=1' >> ~udit/.bashrc
 # allow the non root user to run sudo commands without password
-RUN echo 'chown udit diamond' >> ~/.bashrc
+RUN echo 'udit ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # download diamond binary from locally running server
 RUN echo 'wget http://localhost:19132/diamond -O /diamond-test/diamond' >> ~/.bashrc
 RUN echo 'chmod +x /diamond-test/diamond' >> ~/.bashrc
+RUN echo 'chown udit diamond' >> ~/.bashrc
 RUN echo clear >> ~/.bashrc
 
 # drop into the user shell on start and exit when done
