@@ -15,6 +15,7 @@ import Transaction (Transaction (Transaction))
 
 data CliArgs = CliArgs
   { create :: Bool,
+    mount :: Bool,
     remove :: Maybe String
   }
   deriving (Show)

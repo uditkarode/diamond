@@ -9,10 +9,10 @@ cradle:
     - path: "src/SystemUtils.hs"
       component: "diamond:exe:diamond"
 
-    - path: "src/Diamond.hs"
+    - path: "src/Transaction.hs"
       component: "diamond:exe:diamond"
 
-    - path: "src/Transaction.hs"
+    - path: "src/Diamond.hs"
       component: "diamond:exe:diamond"
 
     - path: "src/Logger.hs"
@@ -22,4 +22,7 @@ cradle:
       component: "diamond:exe:diamond"
 
     - path: "src/Commands/Create.hs"
+      component: "diamond:exe:diamond"
+
+    - path: "src/Commands/Mount.hs"
       component: "diamond:exe:diamond"

@@ -9,6 +9,8 @@ data Reversal = Reversal
 
 type Step = Transaction Text
 
+type Command = Transaction ()
+
 newtype Transaction a = Transaction {runTransaction :: [Reversal] -> IO ([Reversal], a)}
 
 makeStep :: Text -> Reversal -> Step

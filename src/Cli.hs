@@ -31,9 +31,12 @@ cliArgs =
   CliArgs
     <$> switch
       ( long "create"
-          <> short 'q'
           <> help "create a diamond application"
       )
+      <*> switch
+        ( long "mount"
+            <> help "mount all the existing diamond applications"
+        )
       <*> optional
         ( strOption
             ( long "remove"

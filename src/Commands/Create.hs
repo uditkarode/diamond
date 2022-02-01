@@ -17,7 +17,7 @@ import SystemUtils
     userHomeDir,
     writeData',
   )
-import Transaction (Reversal (..), Step, Transaction (Transaction), addReversal, getReversals, makeStep)
+import Transaction (Command, Reversal (..), Step, Transaction (Transaction), addReversal, getReversals, makeStep)
 import Utils (askQuestion, askQuestionRegex, replacePlaceholders, run, run', runAs, runAsR, runR, sanitise)
 
 -- create a user by the target application's sanitised name
@@ -99,7 +99,7 @@ addToData name prefix diPrefix = do
       }
 
 -- the root command function
-create :: Transaction ()
+create :: Command
 create = do
   name <- liftIO $ sanitise <$> askQuestion "Name of the service"
 
