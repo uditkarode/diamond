@@ -3,7 +3,7 @@ module Commands.Create where
 import Data.ByteUnits (ByteUnit (Bytes), ByteValue (ByteValue), getAppropriateUnits, getShortHand)
 import Data.Text (replace, toLower)
 import Logger (logErrorLn, logInfoLn, logSuccessLn)
-import System.Directory (createDirectory)
+import System.Directory (createDirectory, doesDirectoryExist)
 import System.DiskSpace (getAvailSpace)
 import System.Process (cwd, runCommand, shell)
 import SystemUtils
@@ -61,8 +61,8 @@ createSystemdService name homeDir command ramLimit cpuLimit = do
       }
 
 createDiskImage :: Text -> Text -> Text -> Step
-createDiskImage name homeDir size = do
-  let path = homeDir <> "/" <> name <> ".img"
+createDiskImage name loc size = do
+  let path = loc <> "/" <> name <> ".img"
   run "fallocate" ["--length", size, path]
   run "mkfs.ext4" [path]
   makeStep "Creating the disk image" $
@@ -71,9 +71,9 @@ createDiskImage name homeDir size = do
         reversal = void $ runR "rm" [path]
       }
 
-mountDiskImage :: Text -> Text -> Step
-mountDiskImage name homeDir = do
-  run "mount" [homeDir <> "/" <> name <> ".img", homeDir <> "/mountpoint"]
+mountDiskImage :: Text -> Text -> Text -> Step
+mountDiskImage name loc homeDir = do
+  run "mount" [loc <> "/" <> name <> ".img", homeDir <> "/mountpoint"]
   run "chown" [name, homeDir <> "/mountpoint"]
   makeStep "Mounting the disk image" $
     Reversal
@@ -111,15 +111,20 @@ create = do
   homeDir <- liftIO . userHomeDir $ name
   liftIO $ logSuccessLn st
 
-  -- ask questions about the disk image size
-  ds <- liftIO $ getAvailSpace (toString homeDir)
+  -- ask questions about the disk image
+  rloc <- liftIO $ askQuestion "Where do you want to place the disk image? Leave blank for user home"
+  let loc = if rloc == "" then homeDir else rloc
+  v <- liftIO $ (doesDirectoryExist . toString) loc
+  unless v $ fail "No such directory exists!"
+
+  ds <- liftIO $ getAvailSpace (toString loc)
   liftIO $ logInfoLn $ "Free space remaining on target: " <> (toText . getShortHand . getAppropriateUnits $ ByteValue (fromIntegral ds) Bytes)
   diSize <- liftIO $ askQuestionRegex "What is the size of the disk image for this service?" "\\d{0,5}G|M|K"
 
-  st <- createDiskImage name homeDir diSize
+  st <- createDiskImage name loc diSize
   liftIO $ logSuccessLn st
 
-  st <- mountDiskImage name homeDir
+  st <- mountDiskImage name loc homeDir
   liftIO $ logSuccessLn st
 
   -- clone the source code
@@ -136,7 +141,7 @@ create = do
   liftIO $ logSuccessLn st
 
   -- TODO allow user to place disk image or src in directory of choice
-  st <- addToData name homeDir homeDir
+  st <- addToData name homeDir loc
   liftIO $ logSuccessLn st
 
   liftIO $ bail $ name <> " -- coming soon!"
