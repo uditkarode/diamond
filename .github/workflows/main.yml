@@ -1,0 +1,36 @@
+name: Bob the Builder
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  cabal:
+    name: bob the builder
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: cabal new-build -O2 --disable-debug-info --enable-executable-stripping --enable-library-stripping --disable-debug-info --disable-library-for-ghci all --only-dependencies
+      working-directory: ${{ github.workspace }}
+
+    - name: Build
+      run: cabal new-build -O2 --disable-debug-info --enable-executable-stripping --enable-library-stripping --disable-debug-info --disable-library-for-ghci all
+      working-directory: ${{ github.workspace }}
+
+    - name: Copy executable
+      run: cp dist-newstyle/build/aarch64-*/ghc-*/diamond-$(cat diamond.cabal | grep '^version' | awk '{print $2}')/x/diamond/opt/build/diamond/diamond diamond
+      shell: bash
+      working-directory: ${{ github.workspace }}
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: diamond-arm64
+        path: ${{ github.workspace }}/diamond
+
+    - name: Remove temporary executable
+      run: rm diamond
