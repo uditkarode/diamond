@@ -3,6 +3,22 @@ module Cli where
 import Data.Version (showVersion)
 import Diamond (diamond)
 import Options.Applicative as O
+  ( Parser,
+    customExecParser,
+    fullDesc,
+    header,
+    help,
+    helper,
+    info,
+    infoOption,
+    long,
+    prefs,
+    progDesc,
+    short,
+    showHelpOnEmpty,
+    strOption,
+    switch,
+  )
 import Paths_diamond (version)
 import qualified System.Console.Pretty as SP
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist)

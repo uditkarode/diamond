@@ -1,8 +1,10 @@
 module Commands.Create where
 
+import Data.ByteUnits (ByteUnit (Bytes), ByteValue (ByteValue), getAppropriateUnits, getShortHand)
 import Data.Text (replace, toLower)
 import Logger (logErrorLn, logInfoLn, logSuccessLn)
 import System.Directory (createDirectory)
+import System.DiskSpace (getAvailSpace)
 import System.Process (cwd, runCommand, shell)
 import SystemUtils
   ( Data (Data, entries),
@@ -110,7 +112,8 @@ create = do
   liftIO $ logSuccessLn st
 
   -- ask questions about the disk image size
-  -- TODO free space check
+  ds <- liftIO $ getAvailSpace (toString homeDir)
+  liftIO $ logInfoLn $ "Free space remaining on target: " <> (toText . getShortHand . getAppropriateUnits $ ByteValue (fromIntegral ds) Bytes)
   diSize <- liftIO $ askQuestionRegex "What is the size of the disk image for this service?" "\\d{0,5}G|M|K"
 
   st <- createDiskImage name homeDir diSize

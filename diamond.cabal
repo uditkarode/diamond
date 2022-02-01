@@ -38,11 +38,13 @@ executable diamond
 
     build-depends:      base ^>=4.15.0.0
                       , optparse-applicative
+                      , disk-free-space
                       , pretty-terminal
                       , aeson-pretty
                       , regex-tdfa
                       , file-embed
                       , directory
+                      , byteunits
                       , process
                       , relude
                       , aeson
