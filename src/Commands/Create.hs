@@ -16,7 +16,7 @@ import SystemUtils
     writeData',
   )
 import Transaction (Reversal (..), Step, Transaction (Transaction), addReversal, getReversals, makeStep)
-import Utils (askQuestion, replacePlaceholders, run, run', runAs, runAsR, runR, sanitise)
+import Utils (askQuestion, askQuestionRegex, replacePlaceholders, run, run', runAs, runAsR, runR, sanitise)
 
 -- create a user by the target application's sanitised name
 addUser :: Text -> Step
@@ -110,8 +110,8 @@ create = do
   liftIO $ logSuccessLn st
 
   -- ask questions about the disk image size
-  -- TODO free space check and regex validation of size
-  diSize <- liftIO $ askQuestion "What is the size of the disk image for this service?"
+  -- TODO free space check
+  diSize <- liftIO $ askQuestionRegex "What is the size of the disk image for this service?" "\\d{0,5}G|M|K"
 
   st <- createDiskImage name homeDir diSize
   liftIO $ logSuccessLn st

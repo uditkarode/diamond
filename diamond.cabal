@@ -40,6 +40,7 @@ executable diamond
                       , optparse-applicative
                       , pretty-terminal
                       , aeson-pretty
+                      , regex-tdfa
                       , file-embed
                       , directory
                       , process

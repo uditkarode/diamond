@@ -11,6 +11,7 @@ import System.Console.Pretty
   )
 import System.Process (readProcess)
 import SystemUtils (bail)
+import Text.Regex.TDFA ((=~))
 import Transaction (Transaction (Transaction))
 
 foldl :: Foldable f => f a -> b -> (a -> b -> b) -> b
@@ -59,3 +60,15 @@ askQuestion question = do
   putText $ color Blue "> "
   hFlush stdout
   getLine
+
+askQuestionRegex :: Text -> Text -> IO Text
+askQuestionRegex question regex = do
+  putTextLn $ color Blue question
+  putText $ color Blue "> "
+  hFlush stdout
+  v <- getLine
+  if v =~ regex
+    then pure v
+    else do
+      logErrorLn "Invalid input!"
+      askQuestionRegex question regex
