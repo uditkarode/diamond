@@ -2,6 +2,7 @@ module Utils where
 
 import Control.Exception (try)
 import Data.Text (replace, toLower)
+import Data.Text.Internal.Search (indices)
 import GHC.IO.Exception (IOError)
 import Logger (logErrorLn, logInfo)
 import System.Console.Pretty
@@ -23,6 +24,11 @@ replacePlaceholders txt vals = foldl vals txt $ \curr acc -> do
 
 sanitise :: Text -> Text
 sanitise = replace " " "-" . toLower
+
+contains :: Text -> Text -> Bool
+contains x y = case indices y x of
+  (idx : _) -> True
+  _ -> False
 
 run' :: Text -> [Text] -> Transaction (Either Text Text)
 run' prog args = do
