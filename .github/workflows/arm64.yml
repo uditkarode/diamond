@@ -6,7 +6,7 @@ on:
 
 jobs:
   cabal:
-    name: bob the builder
+    name: linux-arm64
     runs-on: self-hosted
     strategy:
       fail-fast: false
