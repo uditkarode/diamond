@@ -67,7 +67,7 @@ isServiceActive name = do
   v <- run' "systemctl" ["is-active", name]
   case v of
     Left e -> pure False
-    Right v -> pure $ v == "active"
+    Right v -> pure $ v `contains` "active"
 
 askQuestion :: Text -> Transaction Text
 askQuestion question = do
