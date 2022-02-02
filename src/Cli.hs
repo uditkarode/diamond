@@ -53,10 +53,6 @@ cliArgs =
 
 prepare :: CliArgs -> IO ()
 prepare args = do
-  -- so that I don't accidentally run this on my main machine
-  -- before it's even ready
-  v <- getEnv "IN_TESTING_ENV"
-
   euid <- getEffectiveUserID
   when (euid /= 0) $ bail "Please run this program with sudo!"
 
@@ -67,7 +63,7 @@ prepare args = do
   fe <- doesFileExist =<< dataPath
   unless fe $ writeData $ Data []
 
-  if v == "1" then diamond args else bail "You need to be in a testing environment until the program is ready."
+  diamond args
 
 main :: IO ()
 main = prepare =<< customExecParser (prefs showHelpOnEmpty) opts
