@@ -7,7 +7,7 @@ import Transaction (Command, Transaction (Transaction))
 import Utils (foldl, isServiceActive)
 
 formatForLog :: [(Text, Text)] -> Text
-formatForLog arr = foldl arr "" $ \curr acc -> acc <> style Bold (fst curr) <> ": " <> snd curr
+formatForLog arr = foldl arr "" $ \curr acc -> acc <> style Bold (fst curr) <> ": " <> snd curr <> "\n"
 
 bcol :: Pretty c => Color -> c -> c
 bcol c = style Bold . color c

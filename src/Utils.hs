@@ -63,9 +63,10 @@ runAsR user prog args = runR "sudo" $ ["-su", user, prog] <> args
 
 isServiceActive :: Text -> Transaction Bool
 isServiceActive name = do
+  runR "systemctl" ["is-active", name]
   v <- run' "systemctl" ["is-active", name]
   case v of
-    Left _ -> pure False
+    Left e -> pure False
     Right v -> pure $ v == "active"
 
 askQuestion :: Text -> Transaction Text
