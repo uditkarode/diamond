@@ -39,7 +39,7 @@ manual = do
   let v =
         DataEntry
           { name = name,
-            prefix = prefix,
+            prefix = if prefix == "" then defPrefix else prefix,
             diskImagePrefix = diPrefix
           }
   steps <- entries <$> readData
