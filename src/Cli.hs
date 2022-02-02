@@ -54,7 +54,9 @@ cliArgs =
 prepare :: CliArgs -> IO ()
 prepare args = do
   euid <- getEffectiveUserID
-  when (euid /= 0) $ bail "Please run this program with sudo!"
+  home <- getEnv "HOME"
+
+  when (euid /= 0 || home == "/root") $ bail "Please run this program with sudo -E!"
 
   installHandler keyboardSignal (Catch (logInfoLn "\nTo exit, respond 'exit' to any asked question.")) Nothing
 

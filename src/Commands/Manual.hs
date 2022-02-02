@@ -25,7 +25,7 @@ manual = do
   liftIO . logInfoLn $ "The prefix is just a folder that contains another folder called 'mountpoint' where the disk image will be mounted"
   defPrefix <- userHomeDir name
 
-  prefix <- askQuestionCondition ("Prefix location (leave blank for '" <> defPrefix <> "'") $ \dir' -> do
+  prefix <- askQuestionCondition ("Prefix location (leave blank for '" <> defPrefix <> "')") $ \dir' -> do
     let dir = if dir' == "" then defPrefix else dir'
     exists <- liftIO $ doesDirectoryExist $ toString dir <> "/mountpoint"
     let msg = if exists then "Mountpoint exists" else "'" <> dir <> "/mountpoint'  does not exist!"
