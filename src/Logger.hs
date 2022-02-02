@@ -23,11 +23,17 @@ logError = le False
 logErrorLn :: Text -> IO ()
 logErrorLn = le True
 
+logMln :: Style -> Color -> Text -> Text -> IO ()
+logMln s c heading toLog = do
+  TIO.hPutStr stderr $ style s . color c $ "[x| "
+  when (heading /= "") $ TIO.hPutStr stderr $ heading <> "\n" <> (style s . color c $ "  | ")
+  TIO.hPutStrLn stderr $ replace "\n" ("\n" <> (style s . color c $ "  | ")) toLog
+
 logErrorMln :: Text -> Text -> IO ()
-logErrorMln heading toLog = do
-  TIO.hPutStr stderr $ style Bold . color Red $ "[x| "
-  TIO.hPutStr stderr $ heading <> "\n" <> (style Bold . color Red $ "  | ")
-  TIO.hPutStrLn stderr $ replace "\n" ("\n" <> (style Bold . color Red $ "  | ")) toLog
+logErrorMln = logMln Bold Red
+
+logSuccessMln :: Text -> Text -> IO ()
+logSuccessMln = logMln Bold Green
 
 -- info
 li :: Bool -> Text -> IO ()

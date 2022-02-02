@@ -17,6 +17,7 @@ data CliArgs = CliArgs
   { create :: Bool,
     mount :: Bool,
     manual :: Bool,
+    list :: Bool,
     remove :: Maybe String
   }
   deriving (Show)

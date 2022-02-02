@@ -29,3 +29,6 @@ cradle:
 
     - path: "src/Commands/Manual.hs"
       component: "diamond:exe:diamond"
+
+    - path: "src/Commands/List.hs"
+      component: "diamond:exe:diamond"

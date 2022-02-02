@@ -61,6 +61,13 @@ runAs user prog args = run "sudo" $ ["-su", user, prog] <> args
 runAsR :: Text -> Text -> [Text] -> Transaction Text
 runAsR user prog args = runR "sudo" $ ["-su", user, prog] <> args
 
+isServiceActive :: Text -> Transaction Bool
+isServiceActive name = do
+  v <- run' "systemctl" ["is-active", name]
+  case v of
+    Left _ -> pure False
+    Right v -> pure $ v == "active"
+
 askQuestion :: Text -> Transaction Text
 askQuestion question = do
   putTextLn $ color Blue question

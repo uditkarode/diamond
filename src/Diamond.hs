@@ -10,7 +10,7 @@ runCommand :: Command -> IO ()
 runCommand cmd = runTransaction cmd [] >> pure ()
 
 diamond :: CliArgs -> IO ()
-diamond (CliArgs create mount manual remove) =
+diamond (CliArgs create mount manual list remove) =
   if
       | create -> runCommand CreateCommand.create
       | mount -> runCommand MountCommand.mount

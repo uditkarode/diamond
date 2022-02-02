@@ -43,6 +43,10 @@ cliArgs =
         ( long "manual"
             <> help "manually add an entry to data"
         )
+      <*> switch
+        ( long "list"
+            <> help "list recorded entries"
+        )
       <*> optional
         ( strOption
             ( long "remove"
