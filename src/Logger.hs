@@ -24,7 +24,7 @@ logErrorLn :: Text -> IO ()
 logErrorLn = le True
 
 logMln :: Style -> Color -> Text -> Text -> Text -> IO ()
-logMln s c heading toLog indicator = do
+logMln s c indicator heading toLog = do
   TIO.hPutStr stderr $ style s . color c $ ("[" <> indicator <> "| ")
   when (heading /= "") $ TIO.hPutStr stderr $ heading <> "\n" <> (style s . color c $ "  | ")
   TIO.hPutStrLn stderr $ replace "\n" ("\n" <> (style s . color c $ "  | ")) toLog
