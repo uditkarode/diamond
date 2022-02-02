@@ -16,6 +16,7 @@ import Transaction (Transaction (Transaction))
 data CliArgs = CliArgs
   { create :: Bool,
     mount :: Bool,
+    manual :: Bool,
     remove :: Maybe String
   }
   deriving (Show)
@@ -52,8 +53,8 @@ dummyService = decodeUtf8 $(embedFile "dummy.service")
 writeData :: Data -> IO ()
 writeData d = flip writeFileText (decodeUtf8 $ encodePretty d) =<< dataPath
 
-writeData' :: Data -> Transaction ()
-writeData' d = do
+writeDataTransac :: Data -> Transaction ()
+writeDataTransac d = do
   v <- liftIO $ try (writeData d) :: Transaction (Either SomeException ())
   case v of
     Left e -> fail $ "Unable to read the data file because " <> displayException e
@@ -75,7 +76,7 @@ bail msg = do
   logErrorLn msg
   exitFailure
 
-userHomeDir :: Text -> IO Text
+userHomeDir :: Text -> Transaction Text
 userHomeDir user = do
   passwd <- readFileText "/etc/passwd"
   usernames <- forM (lines passwd) $ \char -> do
@@ -84,10 +85,10 @@ userHomeDir user = do
     case (username, homeDir) of
       (Just username, Just homeDir) -> pure (username, homeDir)
       _ -> do
-        bail "Could not parse /etc/passwd!"
+        fail "Could not parse /etc/passwd!"
         pure ("type", "haggling")
   case find ((==) user . fst) usernames of
-    Nothing -> bail "Daemon user does not exist" >> pure "type haggling"
+    Nothing -> fail "Daemon user does not exist" >> pure "type haggling"
     Just v -> pure . snd $ v
 
 doesUserExist :: Text -> IO Bool

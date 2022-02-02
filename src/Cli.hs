@@ -39,6 +39,10 @@ cliArgs =
         ( long "mount"
             <> help "mount all the existing diamond applications"
         )
+      <*> switch
+        ( long "manual"
+            <> help "manually add an entry to data"
+        )
       <*> optional
         ( strOption
             ( long "remove"

@@ -36,6 +36,7 @@ executable diamond
                      -- Commands
                       , Commands.Create
                       , Commands.Mount
+                      , Commands.Manual
 
     build-depends:      base ^>=4.15.0.0
                       , optparse-applicative

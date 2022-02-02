@@ -15,7 +15,7 @@ import SystemUtils
     dummyService,
     readData,
     userHomeDir,
-    writeData',
+    writeDataTransac,
   )
 import Transaction (Command, Reversal (..), Step, Transaction (Transaction), addReversal, getReversals, makeStep)
 import Utils (askQuestion, askQuestionRegex, replacePlaceholders, run, run', runAs, runAsR, runR, sanitise)
@@ -90,12 +90,12 @@ addToData name prefix diPrefix = do
             diskImagePrefix = diPrefix
           }
   steps <- entries <$> readData
-  writeData' $ Data $ steps <> [v]
+  writeDataTransac $ Data $ steps <> [v]
   p <- liftIO $ toText <$> dataPath
   makeStep ("Adding entry to '" <> p <> "'") $
     Reversal
       { userMsg = "Removing entry from '" <> p <> "'",
-        reversal = writeData' $ Data steps
+        reversal = writeDataTransac $ Data steps
       }
 
 -- the root command function
@@ -108,7 +108,7 @@ create = do
   liftIO $ doesUserExist name >>= flip when (bail "A user by this name already exists!")
 
   st <- addUser name
-  homeDir <- liftIO . userHomeDir $ name
+  homeDir <- userHomeDir name
   liftIO $ logSuccessLn st
 
   -- ask questions about the disk image

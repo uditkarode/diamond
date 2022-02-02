@@ -5,7 +5,7 @@ import Control.Exception.Base (try)
 import Data.Text (replace, toLower)
 import Data.Text.Internal.Search (indices)
 import GHC.IO.Exception (IOError)
-import Logger (logErrorLn, logInfo)
+import Logger (logErrorLn, logInfo, logSuccessLn)
 import System.Console.Pretty
   ( Color (Blue, Green),
     Pretty (color, style),
@@ -79,3 +79,12 @@ askQuestionRegex question regex = do
     else do
       liftIO $ logErrorLn "Invalid input!"
       askQuestionRegex question regex
+
+askQuestionCondition :: Text -> (Text -> IO (Text, Bool)) -> Transaction Text
+askQuestionCondition qn fn = do
+  v <- askQuestion qn
+  cres <- liftIO $ fn v
+  liftIO . (if snd cres then logSuccessLn else logErrorLn) $ fst cres
+  if snd cres
+    then pure v
+    else askQuestion qn
