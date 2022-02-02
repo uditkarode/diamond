@@ -2,6 +2,7 @@ module Cli where
 
 import Data.Version (showVersion)
 import Diamond (diamond)
+import Logger (logInfoLn)
 import Options.Applicative as O
   ( Parser,
     customExecParser,
@@ -23,6 +24,7 @@ import Paths_diamond (version)
 import qualified System.Console.Pretty as SP
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist)
 import System.Environment (getEnv)
+import System.Posix (Handler (Catch), installHandler, keyboardSignal)
 import System.Posix.User (getEffectiveUserID)
 import SystemUtils (CliArgs (CliArgs), Data (Data), bail, configRoot, dataPath, writeData)
 
@@ -53,6 +55,8 @@ prepare args = do
 
   euid <- getEffectiveUserID
   when (euid /= 0) $ bail "Please run this program with sudo!"
+
+  installHandler keyboardSignal (Catch (logInfoLn "\nTo exit, respond 'exit' to any asked question.")) Nothing
 
   createDirectoryIfMissing True =<< configRoot
 

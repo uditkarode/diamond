@@ -1,6 +1,7 @@
 module Utils where
 
 import Control.Exception (try)
+import Control.Exception.Base (try)
 import Data.Text (replace, toLower)
 import Data.Text.Internal.Search (indices)
 import GHC.IO.Exception (IOError)
@@ -60,21 +61,21 @@ runAs user prog args = run "sudo" $ ["-su", user, prog] <> args
 runAsR :: Text -> Text -> [Text] -> Transaction Text
 runAsR user prog args = runR "sudo" $ ["-su", user, prog] <> args
 
-askQuestion :: Text -> IO Text
+askQuestion :: Text -> Transaction Text
 askQuestion question = do
   putTextLn $ color Blue question
   putText $ color Blue "> "
   hFlush stdout
-  getLine
+  v' <- (liftIO $ try getLine) :: Transaction (Either SomeException Text)
+  case v' of
+    Left _ -> (liftIO . logErrorLn) "Invalid input or I/O error" >> askQuestion question
+    Right v -> if v == "exit" then fail "Cancelled by user" else pure v
 
-askQuestionRegex :: Text -> Text -> IO Text
+askQuestionRegex :: Text -> Text -> Transaction Text
 askQuestionRegex question regex = do
-  putTextLn $ color Blue question
-  putText $ color Blue "> "
-  hFlush stdout
-  v <- getLine
+  v <- askQuestion question
   if v =~ regex
     then pure v
     else do
-      logErrorLn "Invalid input!"
+      liftIO $ logErrorLn "Invalid input!"
       askQuestionRegex question regex

@@ -101,7 +101,7 @@ addToData name prefix diPrefix = do
 -- the root command function
 create :: Command
 create = do
-  name <- liftIO $ sanitise <$> askQuestion "Name of the service"
+  name <- sanitise <$> askQuestion "Name of the service"
 
   -- create a user for the service
   liftIO $ logInfoLn "Checking for availability..."
@@ -112,14 +112,14 @@ create = do
   liftIO $ logSuccessLn st
 
   -- ask questions about the disk image
-  rloc <- liftIO $ askQuestion "Where do you want to place the disk image? Leave blank for user home"
+  rloc <- askQuestion "Where do you want to place the disk image? Leave blank for user home"
   let loc = if rloc == "" then homeDir else rloc
   v <- liftIO $ (doesDirectoryExist . toString) loc
   unless v $ fail "No such directory exists!"
 
   ds <- liftIO $ getAvailSpace (toString loc)
   liftIO $ logInfoLn $ "Free space remaining on target: " <> (toText . getShortHand . getAppropriateUnits $ ByteValue (fromIntegral ds) Bytes)
-  diSize <- liftIO $ askQuestionRegex "What is the size of the disk image for this service?" "\\d{0,5}G|M|K"
+  diSize <- askQuestionRegex "What is the size of the disk image for this service?" "\\d{0,5}G|M|K"
 
   st <- createDiskImage name loc diSize
   liftIO $ logSuccessLn st
@@ -128,14 +128,14 @@ create = do
   liftIO $ logSuccessLn st
 
   -- clone the source code
-  url <- liftIO $ askQuestion "Link to the git repository of the service"
+  url <- askQuestion "Link to the git repository of the service"
   st <- cloneRepo name url homeDir
   liftIO $ logSuccessLn st
 
   -- ask a few more general questions for the service setup
-  command <- liftIO $ askQuestion "Command to run the service"
-  ramLimit <- liftIO $ askQuestion "What RAM limit do you want to assign? (e.g. 800M / 2G)"
-  cpuLimit <- liftIO $ askQuestion "What CPU limit do you want to assign? (e.g.) 200%"
+  command <- askQuestion "Command to run the service"
+  ramLimit <- askQuestion "What RAM limit do you want to assign? (e.g. 800M / 2G)"
+  cpuLimit <- askQuestion "What CPU limit do you want to assign? (e.g.) 200%"
 
   st <- createSystemdService name homeDir command ramLimit cpuLimit
   liftIO $ logSuccessLn st
