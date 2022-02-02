@@ -22,12 +22,14 @@ manual = do
     let msg = if exists then "Service exists" else "No such service exists!"
     pure (msg, exists)
 
-  prefix <- userHomeDir name
-  liftIO . logInfoLn $ "Assuming prefix is at '" <> prefix <> "'"
-  liftIO . logInfoLn $ "If the prefix is elsewhere, move it to the above mentioned folder, which is the user home"
   liftIO . logInfoLn $ "The prefix is just a folder that contains another folder called 'mountpoint' where the disk image will be mounted"
-  de <- liftIO $ doesDirectoryExist $ toString prefix <> "/mountpoint"
-  unless de $ fail "The prefix needs to contain a directory called 'mountpoint'!"
+  defPrefix <- userHomeDir name
+
+  prefix <- askQuestionCondition ("Prefix location (leave blank for '" <> defPrefix <> "'") $ \dir' -> do
+    let dir = if dir' == "" then defPrefix else dir'
+    exists <- liftIO $ doesDirectoryExist $ toString dir <> "/mountpoint"
+    let msg = if exists then "Mountpoint exists" else "'" <> dir <> "/mountpoint'  does not exist!"
+    pure (msg, exists)
 
   diPrefix <- askQuestionCondition "Disk image prefix location" $ \dir -> do
     exists <- doesFileExist $ toString dir <> "/" <> toString name <> ".img"
