@@ -16,6 +16,10 @@ newtype Transaction a = Transaction {runTransaction :: [Reversal] -> IO ([Revers
 makeStep :: Text -> Reversal -> Step
 makeStep t r = Transaction $ \r0 -> pure ([r] <> r0, t)
 
+fromMaybe :: Maybe a -> String -> Transaction a
+fromMaybe (Just v) _ = pure v
+fromMaybe Nothing err = fail err
+
 getReversals :: Transaction [Reversal]
 getReversals = Transaction $ \r0 -> pure (r0, r0)
 
@@ -48,7 +52,7 @@ instance MonadIO Transaction where
 
 instance MonadFail Transaction where
   fail reason = do
-    liftIO $ logErrorMln "An operation in the previous step failed!" (toText reason)
+    liftIO $ logErrorMln "An operation in the previous step failed!" (toText reason) "x"
     reversals <- getReversals
     forM_ reversals $ \v -> do
       liftIO $ logInfoLn (userMsg v)

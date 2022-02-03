@@ -24,10 +24,13 @@ cradle:
     - path: "src/Commands/Create.hs"
       component: "diamond:exe:diamond"
 
-    - path: "src/Commands/Mount.hs"
+    - path: "src/Commands/Remove.hs"
       component: "diamond:exe:diamond"
 
     - path: "src/Commands/Manual.hs"
+      component: "diamond:exe:diamond"
+
+    - path: "src/Commands/Mount.hs"
       component: "diamond:exe:diamond"
 
     - path: "src/Commands/List.hs"

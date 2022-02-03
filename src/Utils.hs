@@ -3,21 +3,40 @@ module Utils where
 import Control.Exception (try)
 import Control.Exception.Base (try)
 import Data.Text (replace, toLower)
+import qualified Data.Text as T
 import Data.Text.Internal.Search (indices)
 import GHC.IO.Exception (IOError)
 import Logger (logErrorLn, logInfo, logSuccessLn)
+import Relude.String.Conversion as RSC (readEither)
 import System.Console.Pretty
-  ( Color (Blue, Green),
+  ( Color (Blue, Green, Red),
     Pretty (color, style),
     Style (Bold),
   )
 import System.Process (readProcess)
-import SystemUtils (bail)
+import SystemUtils (DataEntry (diskImagePrefix, name, prefix))
 import Text.Regex.TDFA ((=~))
 import Transaction (Transaction (Transaction))
 
 foldl :: Foldable f => f a -> b -> (a -> b -> b) -> b
 foldl a d l = flipfoldl' l d a
+
+formatForLog :: [(Text, Text)] -> Text
+formatForLog arr = T.dropEnd 1 (foldl arr "" $ \curr acc -> acc <> style Bold (fst curr) <> ": " <> snd curr <> "\n")
+
+bcol :: Pretty c => Color -> c -> c
+bcol c = style Bold . color c
+
+logEntryMln :: (Text -> Transaction ()) -> DataEntry -> Bool -> Bool -> Transaction ()
+logEntryMln fn v mntd running = do
+  let yn bool = if bool then bcol Green "yes" else bcol Red "no"
+  fn . formatForLog $
+    [ ("name", name v),
+      ("mountpoint", prefix v <> "/mountpoint"),
+      ("disk image", diskImagePrefix v <> "/" <> name v <> ".img"),
+      ("mounted", yn mntd),
+      ("running", yn running)
+    ]
 
 replacePlaceholders :: Text -> [(Text, Text)] -> Text
 replacePlaceholders txt vals = foldl vals txt $ \curr acc -> do
@@ -60,6 +79,13 @@ runAs user prog args = run "sudo" $ ["-su", user, prog] <> args
 
 runAsR :: Text -> Text -> [Text] -> Transaction Text
 runAsR user prog args = runR "sudo" $ ["-su", user, prog] <> args
+
+readInt :: Text -> Transaction Int
+readInt t = do
+  let v = readEither (toString t) :: Either Text Int
+  case v of
+    Left _ -> fail "Invalid input, please enter an integer"
+    Right v -> pure v
 
 isServiceActive :: Text -> Transaction Bool
 isServiceActive name = do

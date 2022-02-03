@@ -1,6 +1,5 @@
 module Commands.Mount where
 
-import Data.Text as T
 import Logger (logErrorLn, logInfoLn, logSuccessLn)
 import SystemUtils
   ( Data (entries),

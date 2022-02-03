@@ -3,7 +3,7 @@ module Logger where
 import Data.Text (replace)
 import qualified Data.Text.IO as TIO
 import System.Console.Pretty
-  ( Color (Green, Red, Yellow),
+  ( Color (Green, Red, White, Yellow),
     Pretty (color, style),
     Style (Bold),
   )
@@ -22,18 +22,6 @@ logError = le False
 
 logErrorLn :: Text -> IO ()
 logErrorLn = le True
-
-logMln :: Style -> Color -> Text -> Text -> Text -> IO ()
-logMln s c indicator heading toLog = do
-  TIO.hPutStr stderr $ style s . color c $ ("[" <> indicator <> "| ")
-  when (heading /= "") $ TIO.hPutStr stderr $ heading <> "\n" <> (style s . color c $ "  | ")
-  TIO.hPutStrLn stderr $ replace "\n" ("\n" <> (style s . color c $ "  | ")) toLog
-
-logErrorMln :: Text -> Text -> IO ()
-logErrorMln = logMln Bold Red "x"
-
-logSuccessMln :: Text -> Text -> IO ()
-logSuccessMln = logMln Bold Green "✓"
 
 -- info
 li :: Bool -> Text -> IO ()
@@ -54,3 +42,19 @@ logSuccess = ls False
 
 logSuccessLn :: Text -> IO ()
 logSuccessLn = ls True
+
+-- multiline
+logMln :: Style -> Color -> Text -> Text -> Text -> IO ()
+logMln s c indicator heading toLog = do
+  TIO.hPutStr stderr $ style s . color c $ ("[" <> indicator <> "| ")
+  when (heading /= "") $ TIO.hPutStr stderr $ heading <> "\n" <> (style s . color c $ "  | ")
+  TIO.hPutStrLn stderr $ replace "\n" ("\n" <> (style s . color c $ "  | ")) toLog
+
+logErrorMln :: Text -> Text -> Text -> IO ()
+logErrorMln = logMln Bold Red
+
+logSuccessMln :: Text -> Text -> Text -> IO ()
+logSuccessMln = logMln Bold Green
+
+logInfoMln :: Text -> Text -> Text -> IO ()
+logInfoMln = logMln Bold White

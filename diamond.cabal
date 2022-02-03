@@ -35,8 +35,9 @@ executable diamond
 
                      -- Commands
                       , Commands.Create
-                      , Commands.Mount
+                      , Commands.Remove
                       , Commands.Manual
+                      , Commands.Mount
                       , Commands.List
 
     build-depends:      base ^>=4.15.0.0
@@ -46,6 +47,7 @@ executable diamond
                       , aeson-pretty
                       , regex-tdfa
                       , file-embed
+                      , text-show
                       , directory
                       , byteunits
                       , process
