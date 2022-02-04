@@ -27,9 +27,9 @@ data DataEntry = DataEntry
     prefix :: Text,
     diskImagePrefix :: Text
   }
-  deriving (Generic, Show)
+  deriving (Generic, Show, Eq)
 
-newtype Data = Data {entries :: [DataEntry]} deriving (Generic, Show)
+newtype Data = Data {entries :: [DataEntry]} deriving (Generic, Show, Eq)
 
 instance FromJSON DataEntry
 

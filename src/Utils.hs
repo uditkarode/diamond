@@ -7,7 +7,6 @@ import qualified Data.Text as T
 import Data.Text.Internal.Search (indices)
 import GHC.IO.Exception (IOError)
 import Logger (logErrorLn, logInfo, logSuccessLn)
-import Relude.String.Conversion as RSC (readEither)
 import System.Console.Pretty
   ( Color (Blue, Green, Red),
     Pretty (color, style),
