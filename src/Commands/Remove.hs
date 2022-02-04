@@ -2,7 +2,7 @@ module Commands.Remove where
 
 import Data.List (delete)
 import Logger (logInfoMln, logSuccessLn)
-import SystemUtils (Data (Data, entries), DataEntry (diskImagePrefix, name), dataPath, readData, userHomeDir, writeDataTransac)
+import SystemUtils (Data (Data, entries), DataEntry (diskImagePrefix, name, prefix), dataPath, readData, userHomeDir, writeDataTransac)
 import Transaction as TR (Command, fromMaybe)
 import Utils (askQuestionRegex, contains, formatForLog, isServiceActive, logEntryMln, readInt, run)
 
@@ -14,7 +14,7 @@ remove ind = do
   choice <- readInt ind
   choice <-
     TR.fromMaybe
-      (d !!? choice)
+      (d !!? (choice - 1))
       ( "The given index is too large! \
         \Number of services in config is only "
           <> show (length d)
@@ -41,14 +41,20 @@ remove ind = do
   res <-
     askQuestionRegex
       ( "This systemd service, system user, and disk image along with ALL the files in " <> hd
-          <> "will\
+          <> " will\
              \be permanently deleted -- are you 100% sure you want to do this? (y/n)"
       )
       "^y|n$"
   when (res == "n") $ fail "User cancelled action"
 
+  when mounted $
+    void $ do
+      let path = prefix choice <> "/mountpoint"
+      run "umount" [path]
+      liftIO . logSuccessLn $ "Unmounted " <> path
+
   -- the remove flag also removes the user home directory files
-  when mounted $ void $ run "userdel" ["--remove", name choice]
+  run "userdel" ["--remove", name choice]
   liftIO . logSuccessLn $ "Removed the user and files in ~"
 
   -- TODO dynamically fetch this
