@@ -51,9 +51,11 @@ dataPath = configRoot <&> (<> "/data.json")
 dummyService :: Text
 dummyService = decodeUtf8 $(embedFile "dummy.service")
 
+-- writes a `Data` to `dataPath`
 writeData :: Data -> IO ()
 writeData d = flip writeFileText (decodeUtf8 $ encodePretty d) =<< dataPath
 
+-- same as writeData but `fail`s on any failure
 writeDataTransac :: Data -> Transaction ()
 writeDataTransac d = do
   v <- liftIO $ try (writeData d) :: Transaction (Either SomeException ())
@@ -61,6 +63,8 @@ writeDataTransac d = do
     Left e -> fail $ "Unable to read the data file because " <> displayException e
     Right v -> pure v
 
+-- reads the diamond json data file which is used to keep track of diamond services
+-- `fail`s on any kind of failure
 readData :: Transaction Data
 readData = do
   txt <- liftIO $ try (readFileLBS =<< dataPath) :: Transaction (Either IOError LByteString)
@@ -72,11 +76,13 @@ readData = do
         Nothing -> fail "Could not decode the data file! Make sure the syntax is correct"
         Just v' -> pure v'
 
+-- logs and error and exits the program
 bail :: Text -> IO ()
 bail msg = do
   logErrorLn msg
   exitFailure
 
+-- retrieves the home directory of the given linux user
 userHomeDir :: Text -> Transaction Text
 userHomeDir user = do
   passwd <- readFileText "/etc/passwd"
@@ -92,6 +98,7 @@ userHomeDir user = do
     Nothing -> fail "Daemon user does not exist" >> pure "type haggling"
     Just v -> pure . snd $ v
 
+-- checks if a linux user by the given name exists on the system
 doesUserExist :: Text -> IO Bool
 doesUserExist user = do
   passwd <- readFileText "/etc/passwd"

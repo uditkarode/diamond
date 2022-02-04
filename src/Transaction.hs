@@ -16,6 +16,7 @@ newtype Transaction a = Transaction {runTransaction :: [Reversal] -> IO ([Revers
 makeStep :: Text -> Reversal -> Step
 makeStep t r = Transaction $ \r0 -> pure ([r] <> r0, t)
 
+-- gets the Just value or `fail`s if it is Nothing
 fromMaybe :: Maybe a -> String -> Transaction a
 fromMaybe (Just v) _ = pure v
 fromMaybe Nothing err = fail err
@@ -50,6 +51,11 @@ instance MonadIO Transaction where
     v <- action
     pure (r0, v)
 
+-- on `fail` in a transaction, any previous reversals are ran
+-- and the program then exits
+-- for example, if the 6th step fails, the actions performed by
+-- the first 5 steps will be reversed (if the reversals were added)
+-- and the program will then exit (check Commands/Create for an example)
 instance MonadFail Transaction where
   fail reason = do
     liftIO $ logErrorMln "An operation in the previous step failed!" (toText reason) "x"
