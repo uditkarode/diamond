@@ -140,8 +140,7 @@ create = do
   st <- createSystemdService name homeDir command ramLimit cpuLimit
   liftIO $ logSuccessLn st
 
-  -- TODO allow user to place disk image or src in directory of choice
   st <- addToData name homeDir loc
   liftIO $ logSuccessLn st
 
-  liftIO $ bail $ name <> " -- coming soon!"
+  liftIO $ logSuccessLn $ "'" <> name <> "' has been created successfully!"
