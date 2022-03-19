@@ -10,7 +10,7 @@ Diamond will:
 * Mount the image in `/var/apps/foo` and clone the source there
 * Create a SystemD service file with CPU/RAM limitations in `/etc/systemd/system/foo.service`
   
-Since the service will have it's own unprivileged Linux user, it's possible to limit damage caused if that specific service is compromised. The reason for the creation of the disk image is simple -- if the service allows saving arbitrary files to disk, it should not be possible for it to be able to fill the host disk to the brim and crash the system. It also has a positive side-effect of making the service and it's files more portable.
+Since the service will have it's own unprivileged Linux user, it's possible to limit damage caused if that specific service is compromised. The reason for the creation of the disk image is simple -- if the service allows saving arbitrary files to disk, it should not be possible for the service to fill the host disk to the brim and crash the system; it also has a positive side-effect of making the service and it's files more portable.
   
 Diamond also allows you to automatically mount all the disk images and start all the services automatically this way:
 ```bash
