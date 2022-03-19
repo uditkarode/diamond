@@ -15,8 +15,8 @@ WorkingDirectory=<diamond-home>
 ExecStart=<diamond-command>
 
 # Limit damage in case something goes awry
-MemoryLimit=<diamond-ram-limit> # something like 3G
-CPUQuota=<diamond-cpu-limit> # something like 400%
+MemoryLimit=<diamond-ram-limit>
+CPUQuota=<diamond-cpu-limit>
 
 # Security
 PrivateTmp=true
