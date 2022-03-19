@@ -109,6 +109,7 @@ create = do
 
   st <- addUser name
   homeDir <- userHomeDir name
+  run "chmod" ["700", homeDir]
   liftIO $ logSuccessLn st
 
   -- ask questions about the disk image
