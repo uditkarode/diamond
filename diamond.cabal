@@ -38,6 +38,7 @@ executable diamond
                       , Commands.Remove
                       , Commands.Manual
                       , Commands.Mount
+                      , Commands.Start
                       , Commands.List
 
     build-depends:      base ^>=4.15.0.0

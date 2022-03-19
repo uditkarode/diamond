@@ -36,6 +36,10 @@ cliArgs =
           <> help "create a diamond application"
       )
       <*> switch
+        ( long "list"
+            <> help "list recorded entries"
+        )
+      <*> switch
         ( long "mount"
             <> help "mount all the existing diamond applications"
         )
@@ -44,8 +48,8 @@ cliArgs =
             <> help "manually add an entry to data"
         )
       <*> switch
-        ( long "list"
-            <> help "list recorded entries"
+        ( long "start"
+            <> help "systemctl start all existing diamond applications provided their disk images are mounted"
         )
       <*> optional
         ( strOption
@@ -78,6 +82,6 @@ main = prepare =<< customExecParser (prefs showHelpOnEmpty) opts
       info
         (cliArgs <**> helper <**> infoOption ("Diamond v" <> (SP.style SP.Bold . SP.color SP.Yellow) (showVersion version)) (O.long "version" <> O.short 'v' <> O.help "Show version"))
         ( fullDesc
-            <> progDesc "Easily create contained applications without containers"
+            <> progDesc "Easily host reasonably contained applications with sane limits"
             <> header "Diamond"
         )
