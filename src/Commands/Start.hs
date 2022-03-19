@@ -9,8 +9,8 @@ import SystemUtils
 import Transaction (Command)
 import Utils (contains, isServiceActive, run, run')
 
-start :: Command
-start = do
+startAll :: Command
+startAll = do
   d <- entries <$> readData
   mntd <- run "mount" []
   forM_ d $ \v -> do

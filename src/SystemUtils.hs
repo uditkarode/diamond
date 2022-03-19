@@ -16,9 +16,9 @@ import Transaction (Transaction (Transaction))
 data CliArgs = CliArgs
   { create :: Bool,
     list :: Bool,
-    mount :: Bool,
+    mountAll :: Bool,
     manual :: Bool,
-    start :: Bool,
+    startAll :: Bool,
     remove :: Maybe String
   }
   deriving (Show)

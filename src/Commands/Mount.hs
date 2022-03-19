@@ -9,8 +9,8 @@ import SystemUtils
 import Transaction (Command)
 import Utils (contains, run, run')
 
-mount :: Command
-mount = do
+mountAll :: Command
+mountAll = do
   d <- entries <$> readData
   mntd <- run "mount" []
   forM_ d $ \v -> do

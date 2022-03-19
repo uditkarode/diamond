@@ -40,7 +40,7 @@ cliArgs =
             <> help "list recorded entries"
         )
       <*> switch
-        ( long "mount"
+        ( long "mount-all"
             <> help "mount all the existing diamond applications"
         )
       <*> switch
@@ -48,7 +48,7 @@ cliArgs =
             <> help "manually add an entry to data"
         )
       <*> switch
-        ( long "start"
+        ( long "start-all"
             <> help "systemctl start all existing diamond applications provided their disk images are mounted"
         )
       <*> optional
