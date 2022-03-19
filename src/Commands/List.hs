@@ -15,6 +15,6 @@ list = do
     let ind = showt $ fst v'
 
     running <- isServiceActive $ name v
-    let fn = liftIO . (if running then logSuccessMln else logErrorMln) "" ind
+    let fn = liftIO . (if running then logSuccessMln else logErrorMln) "*" ind
     logEntryMln fn v (mntd `contains` (name v <> ".img")) running
     putTextLn ""
