@@ -4,7 +4,7 @@ version:            0.1.0.0
 
 synopsis:           Easily host programs on your server with sane limits
 
--- license:         TODO
+license:            GPL-3.0-only
 
 author:             Udit Karode
 maintainer:         udit.karode@gmail.com
