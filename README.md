@@ -7,7 +7,7 @@ Here are the steps it takes for this -- let's assume you want to host a service 
 Diamond will:
 * Create a Linux user `foo` and it's home directory, `/var/apps/foo`
 * Create a disk image called `foo.img` with the size you desire
-* Mount the image in `/var/apps/foo` and clone the source there
+* Mount the image in `/var/apps/foo/mountpoint` and clone the source there
 * Create a SystemD service file with CPU/RAM limitations in `/etc/systemd/system/foo.service`
   
 Since the service will have it's own unprivileged Linux user, it's possible to limit damage caused if that specific service is compromised. The reason for the creation of the disk image is simple -- if the service allows saving arbitrary files to disk, it should not be possible for the service to fill the host disk to the brim and crash the system; it also has a positive side-effect of making the service and it's files more portable.
