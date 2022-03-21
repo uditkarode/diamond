@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               diamond
-version:            0.1.5.0
+version:            0.5.0.0
 
 synopsis:           Easily host programs on your server with sane limits
 
