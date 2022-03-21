@@ -1,5 +1,6 @@
 module Transaction where
 
+import Control.Exception (try)
 import Logger (logErrorLn, logErrorMln, logInfoLn)
 
 data Reversal = Reversal
@@ -48,8 +49,10 @@ instance Monad Transaction where
 
 instance MonadIO Transaction where
   liftIO action = Transaction $ \r0 -> do
-    v <- action
-    pure (r0, v)
+    v <- try action :: IO (Either SomeException _)
+    case v of
+      Left exc -> fail $ "Failed due to exception: " <> show exc
+      Right a -> pure (r0, a)
 
 -- on `fail` in a transaction, any previous reversals are ran
 -- and the program then exits
@@ -58,7 +61,7 @@ instance MonadIO Transaction where
 -- and the program will then exit (check Commands/Create for an example)
 instance MonadFail Transaction where
   fail reason = do
-    liftIO $ logErrorMln "An operation in the previous step failed!" (toText reason) "x"
+    liftIO $ logErrorMln "An operation in the previous step failed!" (toText reason) "reversing previous steps..."
     reversals <- getReversals
     forM_ reversals $ \v -> do
       liftIO $ logInfoLn (userMsg v)

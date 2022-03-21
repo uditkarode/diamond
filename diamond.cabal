@@ -62,5 +62,6 @@ executable diamond
     default-extensions: MultiWayIf
                       , DeriveGeneric
                       , OverloadedStrings
+                      , PartialTypeSignatures
 
     default-language:   Haskell2010
