@@ -21,6 +21,7 @@ executable diamond
                         -optc-O3
                         -optc-ffast-math
                         -fforce-recomp
+                        -fno-warn-partial-type-signatures
 
     mixins:             base hiding (Prelude)
                       , relude (Relude as Prelude)
