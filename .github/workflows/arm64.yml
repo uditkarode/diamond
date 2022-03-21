@@ -27,6 +27,11 @@ jobs:
       shell: bash
       working-directory: ${{ github.workspace }}
 
+    - name: Strip executable
+      run: strip diamond
+      shell: bash
+      working-directory: ${{ github.workspace }}
+
     - uses: actions/upload-artifact@v2
       with:
         name: diamond-arm64
