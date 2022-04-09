@@ -129,12 +129,13 @@ create = do
   liftIO $ logSuccessLn st
 
   -- clone the source code
-  url <- askQuestion "Link to the git repository of the service"
-  st <- cloneRepo name url homeDir
-  liftIO $ logSuccessLn st
+  url <- askQuestion "Link to the git repository of the service (leave empty if not required)"
+  unless (url == "") $ do
+    st <- cloneRepo name url homeDir
+    liftIO $ logSuccessLn st
 
   -- ask a few more general questions for the service setup
-  command <- askQuestion "Command to run the service"
+  command <- askQuestion "Command to run the service (you can change this later manually from the service)"
   ramLimit <- askQuestion "What RAM limit do you want to assign? (e.g. 800M / 2G)"
   cpuLimit <- askQuestion "What CPU limit do you want to assign? (e.g.) 200%"
 
