@@ -25,6 +25,7 @@ addUser :: Text -> Step
 addUser name = do
   run "useradd" ["--home-dir", "/var/apps/" <> name, "--system", "--create-home", name]
   liftIO $ createDirectory $ "/var/apps/" <> toString name <> "/mountpoint"
+  run "chmod" ["-w", "/var/apps/" <> toString name]
   makeStep "Creating user account" $
     Reversal
       { userMsg = "Removing daemon user account",
