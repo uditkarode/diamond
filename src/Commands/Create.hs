@@ -25,7 +25,6 @@ addUser :: Text -> Step
 addUser name = do
   run "useradd" ["--home-dir", "/var/apps/" <> name, "--system", "--create-home", name]
   liftIO $ createDirectory $ "/var/apps/" <> toString name <> "/mountpoint"
-  run "chmod" ["-w", "/var/apps/" <> name]
   makeStep "Creating user account" $
     Reversal
       { userMsg = "Removing daemon user account",
@@ -99,6 +98,15 @@ addToData name prefix diPrefix = do
         reversal = writeDataTransac $ Data steps
       }
 
+makeUserHomeNonWritable :: Text -> Step
+makeUserHomeNonWritable homeDir = do
+  run "chmod" ["-w", homeDir]
+  makeStep ("Making '" <> homeDir <> "' non-writable") $
+    Reversal
+      { userMsg = "Making '" <> homeDir <> "' writable",
+        reversal = void $ run "chmod" ["+w", homeDir]
+      }
+
 -- the root command function
 create :: Command
 create = do
@@ -144,6 +152,9 @@ create = do
   liftIO $ logSuccessLn st
 
   st <- addToData name homeDir loc
+  liftIO $ logSuccessLn st
+
+  st <- makeUserHomeNonWritable homeDir
   liftIO $ logSuccessLn st
 
   liftIO $ logSuccessLn $ "'" <> name <> "' has been created successfully!"
