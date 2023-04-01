@@ -35,36 +35,36 @@ cliArgs =
       ( long "create"
           <> help "create a diamond application"
       )
-      <*> switch
-        ( long "list"
-            <> help "list recorded entries"
-        )
-      <*> switch
-        ( long "mount-all"
-            <> help "mount all the existing diamond applications"
-        )
-      <*> switch
-        ( long "manual"
-            <> help "manually add an entry to data"
-        )
-      <*> switch
-        ( long "start-all"
-            <> help "systemctl start all existing diamond applications provided their disk images are mounted"
-        )
-      <*> optional
-        ( strOption
-            ( long "remove"
-                <> short 'r'
-                <> help "remove the specified diamond application"
-            )
-        )
+    <*> switch
+      ( long "list"
+          <> help "list recorded entries"
+      )
+    <*> switch
+      ( long "mount-all"
+          <> help "mount all the existing diamond applications"
+      )
+    <*> switch
+      ( long "manual"
+          <> help "manually add an entry to data"
+      )
+    <*> switch
+      ( long "start-all"
+          <> help "systemctl start all existing diamond applications provided their disk images are mounted"
+      )
+    <*> optional
+      ( strOption
+          ( long "remove"
+              <> short 'r'
+              <> help "remove the specified diamond application"
+          )
+      )
 
 prepare :: CliArgs -> IO ()
 prepare args = do
   euid <- getEffectiveUserID
   home <- getEnv "HOME"
 
-  when (euid /= 0 || home == "/root") $ bail "Please run this program with sudo -E!"
+  when (euid /= 0 || home == "/root") $ bail $ "Please run this program with sudo -E!" <> "\neuid: " <> show euid <> "\nhome: " <> toText home
 
   installHandler keyboardSignal (Catch (logInfoLn "\nTo exit, respond 'exit' to any asked question.")) Nothing
 

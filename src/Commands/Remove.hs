@@ -2,6 +2,7 @@ module Commands.Remove where
 
 import Data.List (delete)
 import Logger (logInfoMln, logSuccessLn)
+import System.Directory (doesFileExist)
 import SystemUtils (Data (Data, entries), DataEntry (diskImagePrefix, name, prefix), dataPath, readData, userHomeDir, writeDataTransac)
 import Transaction as TR (Command, fromMaybe)
 import Utils (askQuestionRegex, contains, formatForLog, isServiceActive, logEntryMln, readInt, run)
@@ -40,8 +41,9 @@ remove ind = do
   hd <- userHomeDir (name choice)
   res <-
     askQuestionRegex
-      ( "This systemd service, system user, and disk image along with ALL the files in " <> hd
-          <> " will\
+      ( "This systemd service, system user, and disk image along with ALL the files in "
+          <> hd
+          <> " will \
              \be permanently deleted -- are you 100% sure you want to do this? (y/n)"
       )
       "^y|n$"
@@ -61,8 +63,11 @@ remove ind = do
   run "rm" ["/etc/systemd/system/" <> name choice <> ".service"]
   liftIO . logSuccessLn $ "Removed the systemd service"
 
-  run "rm" [diskImagePrefix choice <> "/" <> name choice <> ".img"]
-  liftIO . logSuccessLn $ "Removed the disk image"
+  let diskImagePath = diskImagePrefix choice <> "/" <> name choice <> ".img"
+  diskImageExists <- liftIO $ doesFileExist $ toString diskImagePath
+  when diskImageExists $ do
+    run "rm" [diskImagePath]
+    liftIO . logSuccessLn $ "Removed the disk image"
 
   writeDataTransac $ Data (delete choice d)
   p <- liftIO $ toText <$> dataPath
