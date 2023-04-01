@@ -42,7 +42,7 @@ executable diamond
                       , Commands.Start
                       , Commands.List
 
-    build-depends:      base ^>=4.15.0.0
+    build-depends:      base ^>=4.16.4.0
                       , optparse-applicative
                       , disk-free-space
                       , pretty-terminal

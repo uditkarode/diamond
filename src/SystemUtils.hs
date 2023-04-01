@@ -86,7 +86,7 @@ bail msg = do
 -- retrieves the home directory of the given linux user
 userHomeDir :: Text -> Transaction Text
 userHomeDir user = do
-  passwd <- readFileText "/etc/passwd"
+  passwd <- decodeUtf8 <$> readFileBS "/etc/passwd"
   usernames <- forM (lines passwd) $ \char -> do
     let username = maybeAt 0 (splitOn ":" char)
     let homeDir = maybeAt 5 (splitOn ":" char)
@@ -102,7 +102,7 @@ userHomeDir user = do
 -- checks if a linux user by the given name exists on the system
 doesUserExist :: Text -> IO Bool
 doesUserExist user = do
-  passwd <- readFileText "/etc/passwd"
+  passwd <- decodeUtf8 <$> readFileBS "/etc/passwd"
   usernames <- forM (lines passwd) $ \char -> do
     let username = viaNonEmpty head (splitOn ":" char)
     case username of
