@@ -3,7 +3,7 @@ module Commands.Create where
 import Data.ByteUnits (ByteUnit (Bytes), ByteValue (ByteValue), getAppropriateUnits, getShortHand)
 import Data.Text (replace, toLower)
 import Logger (logErrorLn, logInfoLn, logSuccessLn)
-import System.Directory (createDirectory, doesDirectoryExist)
+import System.Directory (createDirectory, doesDirectoryExist, removeFile)
 import System.DiskSpace (getAvailSpace)
 import System.Process (cwd, runCommand, shell)
 import SystemUtils
@@ -107,6 +107,25 @@ makeUserHomeNonWritable homeDir = do
         reversal = void $ run "chmod" ["+w", homeDir]
       }
 
+writeUserShellConfig :: String -> Step
+writeUserShellConfig homeDir = do
+  let shells = ["bash", "zsh"]
+  let shellConfig = "export HOME=" <> homeDir <> "/mountpoint"
+  let shellConfigPath shell = homeDir <> "/." <> shell <> "rc"
+
+  liftIO $ forM_ shells $ \shell -> writeFile (shellConfigPath shell) shellConfig
+
+  makeStep "Writing shell config" $
+    Reversal
+      { userMsg = "Removing shell config",
+        reversal =
+          void $
+            liftIO $
+              forM_
+                shells
+                (removeFile . shellConfigPath)
+      }
+
 -- the root command function
 create :: Command
 create = do
@@ -152,6 +171,9 @@ create = do
   liftIO $ logSuccessLn st
 
   st <- addToData name homeDir loc
+  liftIO $ logSuccessLn st
+
+  st <- writeUserShellConfig $ toString homeDir
   liftIO $ logSuccessLn st
 
   st <- makeUserHomeNonWritable homeDir
