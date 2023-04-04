@@ -110,7 +110,7 @@ makeUserHomeNonWritable homeDir = do
 writeUserShellConfig :: String -> Step
 writeUserShellConfig homeDir = do
   let shells = ["bash", "zsh"]
-  let shellConfig = "export HOME=" <> homeDir <> "/mountpoint"
+  let shellConfig = "export HOME=" <> homeDir <> "/mountpoint" <> "\n" <> "cd $HOME" <> "\n"
   let shellConfigPath shell = homeDir <> "/." <> shell <> "rc"
 
   liftIO $ forM_ shells $ \shell -> writeFile (shellConfigPath shell) shellConfig
