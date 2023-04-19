@@ -47,7 +47,7 @@ createSystemdService name homeDir command ramLimit cpuLimit = do
         replacePlaceholders
           dummyService
           [ ("name", name),
-            ("home", homeDir <> "/mountpoint/src"),
+            ("home", homeDir <> "/mountpoint"),
             ("command", command),
             ("ram-limit", ramLimit),
             ("cpu-limit", cpuLimit)
@@ -110,7 +110,15 @@ makeUserHomeNonWritable homeDir = do
 writeUserShellConfig :: String -> Step
 writeUserShellConfig homeDir = do
   let shells = ["bash", "zsh"]
-  let shellConfig = "export HOME=" <> homeDir <> "/mountpoint" <> "\n" <> "cd $HOME" <> "\n"
+  let shellConfig =
+        "export HOME="
+          <> homeDir
+          <> "/mountpoint"
+          <> "\n"
+          <> "export PATH=\"$PATH:/usr/bin:/usr/local/bin:$HOME/.bin\""
+          <> "\n"
+          <> "cd $HOME"
+          <> "\n"
   let shellConfigPath shell = homeDir <> "/." <> shell <> "rc"
 
   liftIO $ forM_ shells $ \shell -> writeFile (shellConfigPath shell) shellConfig
