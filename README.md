@@ -1,7 +1,7 @@
 # diamond
 ☁️ Easily host reasonably contained applications with sane limits.
   
-Diamond is an alternative for when you can't or don't want to use Docker/Podman. It allows you to make management of hosted services easy and allows you to "contain" them to some extent.
+Diamond is an alternative for when you can't or don't want to use Docker/Podman. It makes management of hosted services easier and allows you to "contain" them to some extent.
   
 Here are the steps it takes for this -- let's assume you want to host a service called `foo`.
 Diamond will:
